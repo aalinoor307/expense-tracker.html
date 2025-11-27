@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Monthly Expense Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: light dark;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 20px 40px rgba(15,23,42,0.8);
+      border: 1px solid #1f2937;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-top: 0.25rem;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+
+    .top-bar-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    select, input[type="month"], input[type="date"], input[type="text"], input[type="number"] {
+      background: #020617;
+      color: #e5e7eb;
+      border-radius: 0.5rem;
+      border: 1px solid #374151;
+      padding: 0.45rem 0.6rem;
+      font-size: 0.85rem;
+      min-width: 0;
+    }
+
+    select:focus, input:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 1px;
+      border-color: #2563eb;
+    }
+
+    .month-select-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-color: transparent;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .btn-small {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.75rem;
+    }
+
+    .chip {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #9ca3af;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1.8fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .summary-card {
+      background: radial-gradient(circle at top left, rgba(37,99,235,0.3), transparent 55%);
+      border-radius: 0.9rem;
+      padding: 0.7rem 0.75rem;
+      border: 1px solid #1f2937;
+    }
+
+    .summary-title {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .summary-value {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 0.2rem;
+    }
+
+    .summary-sub {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.1rem;
+    }
+
+    .form {
+      margin-top: 1rem;
+      border-radius: 0.9rem;
+      border: 1px dashed #374151;
+      padding: 0.75rem;
+      background: rgba(15,23,42,0.7);
+    }
+
+    .form-row {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    @media (min-width: 700px) {
+      .form-row {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .form-actions {
+      margin-top: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .form-note {
+      font-size: 0.7rem;
+      color: #6b7280;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    th, td {
+      padding: 0.45rem 0.4rem;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+    }
+
+    th {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    tbody tr:hover {
+      background: rgba(15,23,42,0.85);
+    }
+
+    .table-wrapper {
+      max-height: 360px;
+      overflow: auto;
+      margin-top: 0.5rem;
+      border-radius: 0.8rem;
+      border: 1px solid #111827;
+      background: #020617;
+    }
+
+    .category-pill {
+      font-size: 0.7rem;
+      padding: 0.18rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(37,99,235,0.3);
+      color: #bfdbfe;
+    }
+
+    .meta {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      margin-right: 0.3rem;
+    }
+
+    .status-ok {
+      background: #22c55e;
+    }
+
+    .status-syncing {
+      background: #fbbf24;
+    }
+
+    .status-error {
+      background: #ef4444;
+    }
+
+    .status-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .badge-cloud {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: rgba(15,23,42,0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: #9ca3af;
+    }
+  </style>
+  <!-- MSAL for Microsoft login -->
+  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <header>
+        <h1>Monthly Expense Tracker</h1>
+        <div class="subtitle">
+          New web-based version with optional OneDrive cloud sync.
+        </div>
+      </header>
+
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <div class="month-select-group">
+            <label for="monthSelect">Month</label>
+            <input type="month" id="monthSelect" />
+          </div>
+          <button class="btn btn-small" id="prevMonthBtn">&larr; Previous</button>
+          <button class="btn btn-small" id="nextMonthBtn">Next &rarr;</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.4rem; align-items:flex-end;">
+          <div style="display:flex; gap:0.4rem;">
+            <button class="btn btn-small" id="signInBtn">Sign in with Microsoft</button>
+            <button class="btn btn-small" id="signOutBtn" style="display:none;">Sign out</button>
+          </div>
+          <div style="display:flex; gap:0.4rem; align-items:center;">
+            <button class="btn btn-small" id="syncNowBtn" disabled>Sync now</button>
+            <span class="badge-cloud">
+              ☁ OneDrive sync
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <!-- LEFT: Summary + form -->
+        <section>
+          <div class="summary-grid" id="summary">
+            <!-- Filled by JS -->
+          </div>
+
+          <form class="form" id="expenseForm">
+            <div class="form-row">
+              <div>
+                <label for="dateInput">Date</label>
+                <input type="date" id="dateInput" required />
+              </div>
+              <div>
+                <label for="categoryInput">Category</label>
+                <select id="categoryInput">
+                  <option>Food</option>
+                  <option>Transport</option>
+                  <option>Housing</option>
+                  <option>Utilities</option>
+                  <option>Shopping</option>
+                  <option>Entertainment</option>
+                  <option>Health</option>
+                  <option>Debt</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="descriptionInput">Description</label>
+                <input type="text" id="descriptionInput" placeholder="e.g. Groceries" />
+              </div>
+              <div>
+                <label for="amountInput">Amount</label>
+                <input type="number" id="amountInput" step="0.01" min="0" required />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                + Add Expense
+              </button>
+              <div class="form-note">
+                Data is saved locally & can also sync to OneDrive when signed in.
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- RIGHT: Table -->
+        <section>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th style="text-align:right;">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="expenseTableBody">
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div class="meta">
+        <div class="status-text" id="syncStatus">
+          <span class="status-dot status-ok" id="statusDot"></span>
+          <span id="statusLabel">Local only · not signed in</span>
+        </div>
+        <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <button class="btn btn-small" id="exportBtn">Export backup</button>
+          <input type="file" id="importFileInput" accept="application/json" style="display:none;" />
+          <button class="btn btn-small" id="importBtn">Import backup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*********************************
+     *  BASIC LOCAL DATA MANAGEMENT  *
+     *********************************/
+
+    const LOCAL_STORAGE_KEY = "expense_tracker_data_v1";
+    const CLOUD_FILE_NAME = "expense-tracker-data.json";
+
+    let state = {
+      expenses: [], // { id, date, category, description, amount }
+      lastSyncedAt: null,
+      cloudEnabled: false,
+      msAccount: null,
+      syncing: false
+    };
+
+    function loadLocalData() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.expenses)) {
+          state.expenses = parsed.expenses;
+        }
+        state.lastSyncedAt = parsed.lastSyncedAt || null;
+      } catch (e) {
+        console.error("Failed to parse local data", e);
+      }
+    }
+
+    function saveLocalData() {
+      const payload = {
+        expenses: state.expenses,
+        lastSyncedAt: state.lastSyncedAt
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    function addExpense({ date, category, description, amount }) {
+      state.expenses.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random(),
+        date,
+        category,
+        description: description || "",
+        amount: Number(amount)
+      });
+      saveLocalData();
+      render();
+    }
+
+    function deleteExpense(id) {
+      state.expenses = state.expenses.filter(e => e.id !== id);
+      saveLocalData();
+      render();
+    }
+
+    function getCurrentMonthKey() {
+      const monthInput = document.getElementById("monthSelect");
+      return monthInput.value; // "YYYY-MM"
+    }
+
+    function getExpensesForCurrentMonth() {
+      const key = getCurrentMonthKey();
+      if (!key) return [];
+      return state.expenses.filter(e => (e.date || "").startsWith(key));
+    }
+
+    /*************************
+     *  RENDERING FUNCTIONS  *
+     *************************/
+
+    function formatCurrency(value) {
+      const num = Number(value) || 0;
+      return num.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function renderSummary() {
+      const container = document.getElementById("summary");
+      const list = getExpensesForCurrentMonth();
+      const total = list.reduce((sum, e) => sum + e.amount, 0);
+      const byCategory = {};
+      for (const e of list) {
+        byCategory[e.category] = (byCategory[e.category] || 0) + e.amount;
+      }
+      const topCategory = Object.entries(byCategory).sort((a,b) => b[1] - a[1])[0];
+
+      const avg = list.length ? total / list.length : 0;
+
+      container.innerHTML = `
+        <div class="summary-card">
+          <div class="summary-title">Total spent</div>
+          <div class="summary-value">$${formatCurrency(total)}</div>
+          <div class="summary-sub">${list.length} transactions</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-title">Average per expense</div>
+          <div class="summary-value">$${formatCurrency(avg)}</div>
+          <div class="summary-sub">Across all items this month</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-title">Top category</div>
+          <div class="summary-value">
+            ${topCategory ? topCategory[0] : "—"}
+          </div>
+          <div class="summary-sub">
+            ${topCategory ? "$" + formatCurrency(topCategory[1]) : "No data yet"}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("expenseTableBody");
+      const list = getExpensesForCurrentMonth().sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+      if (!list.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align:center; color:#6b7280; padding:1.5rem;">
+              No expenses for this month yet. Add your first one above.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      tbody.innerHTML = list.map(e => `
+        <tr>
+          <td>${e.date || ""}</td>
+          <td><span class="category-pill">${e.category}</span></td>
+          <td>${e.description ? e.description.replace(/</g,"&lt;") : ""}</td>
+          <td style="text-align:right;">$${formatCurrency(e.amount)}</td>
+          <td style="text-align:right;">
+            <button class="btn btn-small" onclick="handleDeleteExpense('${e.id}')">✕</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderSyncStatus() {
+      const statusDot = document.getElementById("statusDot");
+      const label = document.getElementById("statusLabel");
+      const syncBtn = document.getElementById("syncNowBtn");
+      const signInBtn = document.getElementById("signInBtn");
+      const signOutBtn = document.getElementById("signOutBtn");
+
+      if (state.syncing) {
+        statusDot.className = "status-dot status-syncing";
+        label.textContent = "Syncing with OneDrive…";
+        syncBtn.disabled = true;
+        return;
+      }
+
+      if (state.msAccount) {
+        syncBtn.disabled = false;
+        statusDot.className = "status-dot status-ok";
+        const when = state.lastSyncedAt
+          ? new Date(state.lastSyncedAt).toLocaleString()
+          : "Not yet synced";
+        label.textContent = `Signed in as ${state.msAccount.username || state.msAccount.name || "account"} · Last sync: ${when}`;
+        signInBtn.style.display = "none";
+        signOutBtn.style.display = "inline-flex";
+      } else {
+        syncBtn.disabled = true;
+        statusDot.className = "status-dot status-ok";
+        label.textContent = "Local only · not signed in";
+        signInBtn.style.display = "inline-flex";
+        signOutBtn.style.display = "none";
+      }
+    }
+
+    function render() {
+      renderSummary();
+      renderTable();
+      renderSyncStatus();
+    }
+
+    // For inline onclick
+    window.handleDeleteExpense = function(id) {
+      if (confirm("Delete this expense?")) {
+        deleteExpense(id);
+      }
+    };
+
+    /************************************
+     *  MSAL + ONEDRIVE CLOUD SYNCING   *
+     ************************************/
+
+    // 1) CONFIG – FILL THESE IN AFTER YOU REGISTER THE APP
+    const msalConfig = {
+      auth: {
+        clientId: "YOUR_CLIENT_ID_HERE", // TODO: replace with your app's Client ID
+        authority: "https://login.microsoftonline.com/common",
+        redirectUri: window.location.origin // should match a redirect URI registered for your app
+      }
+    };
+
+    const loginRequest = {
+      scopes: ["User.Read", "Files.ReadWrite"]
+    };
+
+    const graphBase = "https://graph.microsoft.com/v1.0";
+
+    let msalInstance = null;
+
+    function initMsal() {
+      try {
+        msalInstance = new msal.PublicClientApplication(msalConfig);
+        const accounts = msalInstance.getAllAccounts();
+        if (accounts.length > 0) {
+          msalInstance.setActiveAccount(accounts[0]);
+          state.msAccount = accounts[0];
+          state.cloudEnabled = true;
+        }
+      } catch (e) {
+        console.warn("MSAL init failed (Cloud sync will be disabled until configured):", e);
+      }
+    }
+
+    async function signIn() {
+      if (!msalInstance) {
+        alert("Cloud sync not configured yet. Please set your CLIENT_ID in the code first.");
+        return;
+      }
+      try {
+        const loginResp = await msalInstance.loginPopup(loginRequest);
+        msalInstance.setActiveAccount(loginResp.account);
+        state.msAccount = loginResp.account;
+        state.cloudEnabled = true;
+        renderSyncStatus();
+        await syncFromCloud();
+      } catch (e) {
+        console.error(e);
+        alert("Sign-in failed or was cancelled.");
+      }
+    }
+
+    async function signOut() {
+      if (!msalInstance || !state.msAccount) return;
+      try {
+        await msalInstance.logoutPopup({
+          account: state.msAccount
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        state.msAccount = null;
+        state.cloudEnabled = false;
+        renderSyncStatus();
+      }
+    }
+
+    async function getToken() {
+      if (!msalInstance) throw new Error("MSAL not initialized");
+      const account = msalInstance.getActiveAccount();
+      if (!account) throw new Error("No active account");
+      try {
+        const resp = await msalInstance.acquireTokenSilent({
+          ...loginRequest,
+          account
+        });
+        return resp.accessToken;
+      } catch (e) {
+        console.warn("Silent token failed, trying popup", e);
+        const resp = await msalInstance.acquireTokenPopup(loginRequest);
+        return resp.accessToken;
+      }
+    }
+
+    async function syncFromCloud() {
+      if (!state.cloudEnabled) return;
+      state.syncing = true;
+      renderSyncStatus();
+      try {
+        const token = await getToken();
+        const response = await fetch(`${graphBase}/me/drive/root:/${encodeURIComponent(CLOUD_FILE_NAME)}:/content`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const text = await response.text();
+          if (text) {
+            const remote = JSON.parse(text);
+            if (Array.isArray(remote.expenses)) {
+              state.expenses = remote.expenses;
+              state.lastSyncedAt = remote.lastSyncedAt || new Date().toISOString();
+              saveLocalData();
+              render();
+            }
+          }
+        } // if 404 = first time, ignore
+      } catch (e) {
+        console.error("Failed to load from OneDrive", e);
+        alert("Could not load data from OneDrive. Check your connection or permissions.");
+      } finally {
+        state.syncing = false;
+        renderSyncStatus();
+      }
+    }
+
+    async function syncToCloud() {
+      if (!state.cloudEnabled) return;
+      state.syncing = true;
+      renderSyncStatus();
+      try {
+        const token = await getToken();
+        const payload = {
+          expenses: state.expenses,
+          lastSyncedAt: new Date().toISOString()
+        };
+        state.lastSyncedAt = payload.lastSyncedAt;
+        // PUT file contents
+        const response = await fetch(`${graphBase}/me/drive/root:/${encodeURIComponent(CLOUD_FILE_NAME)}:/content`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          throw new Error("Upload failed with status " + response.status);
+        }
+        saveLocalData();
+      } catch (e) {
+        console.error("Failed to save to OneDrive", e);
+        alert("Could not save to OneDrive.");
+      } finally {
+        state.syncing = false;
+        renderSyncStatus();
+      }
+    }
+
+    /***********************
+     *  EXPORT / IMPORT    *
+     ***********************/
+
+    function exportBackup() {
+      const dataStr = JSON.stringify({
+        expenses: state.expenses,
+        lastSyncedAt: state.lastSyncedAt || new Date().toISOString()
+      }, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "expense-tracker-backup.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importBackup(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const json = JSON.parse(e.target.result);
+          if (Array.isArray(json.expenses)) {
+            state.expenses = json.expenses;
+            state.lastSyncedAt = json.lastSyncedAt || new Date().toISOString();
+            saveLocalData();
+            render();
+            alert("Backup imported successfully.");
+          } else {
+            alert("Invalid backup file.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Could not parse backup file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /***********************
+     *  EVENT LISTENERS    *
+     ***********************/
+
+    function setupEvents() {
+      const monthInput = document.getElementById("monthSelect");
+      const today = new Date();
+      monthInput.value = today.toISOString().slice(0,7);
+
+      document.getElementById("prevMonthBtn").addEventListener("click", () => {
+        const current = new Date(monthInput.value + "-01");
+        current.setMonth(current.getMonth() - 1);
+        monthInput.value = current.toISOString().slice(0,7);
+        render();
+      });
+
+      document.getElementById("nextMonthBtn").addEventListener("click", () => {
+        const current = new Date(monthInput.value + "-01");
+        current.setMonth(current.getMonth() + 1);
+        monthInput.value = current.toISOString().slice(0,7);
+        render();
+      });
+
+      monthInput.addEventListener("change", render);
+
+      document.getElementById("expenseForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const date = document.getElementById("dateInput").value;
+        const category = document.getElementById("categoryInput").value;
+        const description = document.getElementById("descriptionInput").value;
+        const amount = document.getElementById("amountInput").value;
+        if (!date || !amount) return;
+        addExpense({ date, category, description, amount });
+        // Optionally auto-sync after add:
+        if (state.cloudEnabled) {
+          syncToCloud();
+        }
+        e.target.reset();
+        document.getElementById("dateInput").value = date;
+      });
+
+      document.getElementById("signInBtn").addEventListener("click", signIn);
+      document.getElementById("signOutBtn").addEventListener("click", signOut);
+      document.getElementById("syncNowBtn").addEventListener("click", syncToCloud);
+      document.getElementById("exportBtn").addEventListener("click", exportBackup);
+      document.getElementById("importBtn").addEventListener("click", () => {
+        document.getElementById("importFileInput").click();
+      });
+      document.getElementById("importFileInput").addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (file) importBackup(file);
+        e.target.value = "";
+      });
+    }
+
+    /***********************
+     *  INIT               *
+     ***********************/
+
+    window.addEventListener("load", async () => {
+      loadLocalData();
+      initMsal();
+      setupEvents();
+      render();
+    });
+  </script>
+</body>
+</html>
