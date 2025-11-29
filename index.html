@@ -7,64 +7,50 @@
   <!-- Google OAuth & API scripts -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
-<!-- === Upcoming features full-width card (safe: no JS touched) === -->
-<style>
-  .feature-card {
-    margin-top: 14px;
-    margin-bottom: 20px;
-    width: 100%;
-    background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    border-radius: 14px;
-    padding: 16px 20px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-  }
 
-  .feature-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #f9fafb;
-  }
+  <!-- === Upcoming features full-width card (styles only) === -->
+  <style>
+    .feature-card {
+      margin-top: 14px;
+      margin-bottom: 20px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
 
-  .feature-card-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 12px;
-    color: #cbd5e1;
-    display: grid;
-    gap: 6px;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
+    .feature-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #f9fafb;
+    }
 
-  .feature-card-list li {
-    padding-left: 8px;
-    position: relative;
-  }
+    .feature-card-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 12px;
+      color: #cbd5e1;
+      display: grid;
+      gap: 6px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
 
-  .feature-card-list li::before {
-    content: "•";
-    position: absolute;
-    left: -4px;
-    color: #facc15; /* gold bullet dot */
-  }
-</style>
+    .feature-card-list li {
+      padding-left: 8px;
+      position: relative;
+    }
 
-<div class="feature-card">
-  <div class="feature-card-title">I can add next:</div>
-  <ul class="feature-card-list">
-    <li>✔ Charts (pie, bar, monthly trend)</li>
-    <li>✔ Recurring expenses &amp; income</li>
-    <li>✔ Budget limits + warnings</li>
-    <li>✔ Multi-currency support</li>
-    <li>✔ Export to PDF</li>
-    <li>✔ Dashboard summary page</li>
-    <li>✔ Login-only mode</li>
-    <li>✔ Password lock</li>
-  </ul>
-</div>
-<!-- === End upcoming features card === -->
+    .feature-card-list li::before {
+      content: "•";
+      position: absolute;
+      left: -4px;
+      color: #facc15; /* gold bullet dot */
+    }
+  </style>
 
   <style>
     :root {
@@ -130,7 +116,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       gap: 16px;
     }
 
@@ -513,10 +499,6 @@
       text-align: left;
     }
 
-    .entries-table tbody tr {
-      border-radius: 999px;
-    }
-
     .entries-table tbody tr:nth-child(odd) {
       background: rgba(15, 23, 42, 0.9);
     }
@@ -775,6 +757,22 @@
         </div>
       </div>
     </header>
+
+    <!-- === Upcoming features full-width card INSIDE the shell === -->
+    <div class="feature-card">
+      <div class="feature-card-title">I can add next:</div>
+      <ul class="feature-card-list">
+        <li>✔ Charts (pie, bar, monthly trend)</li>
+        <li>✔ Recurring expenses &amp; income</li>
+        <li>✔ Budget limits + warnings</li>
+        <li>✔ Multi-currency support</li>
+        <li>✔ Export to PDF</li>
+        <li>✔ Dashboard summary page</li>
+        <li>✔ Login-only mode</li>
+        <li>✔ Password lock</li>
+      </ul>
+    </div>
+    <!-- === End upcoming features card === -->
 
     <!-- Month selector -->
     <div class="month-row">
