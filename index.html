@@ -4,53 +4,13 @@
   <meta charset="UTF-8" />
   <title>Monthly Expense Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Google OAuth & API scripts -->
+
+  <!-- Google OAuth & API scripts (keep these) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 
-  <!-- === Upcoming features full-width card (styles only) === -->
-  <style>
-    .feature-card {
-      margin-top: 14px;
-      margin-bottom: 20px;
-      width: 100%;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 14px;
-      padding: 16px 20px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-    }
-
-    .feature-card-title {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #f9fafb;
-    }
-
-    .feature-card-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      font-size: 12px;
-      color: #cbd5e1;
-      display: grid;
-      gap: 6px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .feature-card-list li {
-      padding-left: 8px;
-      position: relative;
-    }
-
-    .feature-card-list li::before {
-      content: "•";
-      position: absolute;
-      left: -4px;
-      color: #facc15; /* gold bullet dot */
-    }
-  </style>
+  <!-- Chart.js for dashboard charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
@@ -116,7 +76,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       gap: 16px;
     }
 
@@ -231,18 +191,69 @@
       background: #64748b;
     }
 
+    .currency-select {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--muted);
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      outline: none;
+    }
+
+    .currency-select:focus {
+      border-color: rgba(129, 140, 248, 0.9);
+    }
+
+    /* Upcoming features full-width card */
+    .feature-card {
+      margin: 10px 0 18px;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 14px;
+      padding: 10px 16px 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      font-size: 0.8rem;
+    }
+
+    .feature-card-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #f9fafb;
+    }
+
+    .feature-card-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    }
+
+    .feature-card-list li {
+      padding-left: 8px;
+      position: relative;
+    }
+
+    .feature-card-list li::before {
+      content: "•";
+      position: absolute;
+      left: -4px;
+      color: #facc15;
+    }
+
     /* Month selector */
     .month-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
-    }
-
-    .month-row label {
-      font-size: 0.82rem;
-      color: var(--muted);
     }
 
     .month-control {
@@ -341,7 +352,7 @@
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .overview-card {
@@ -388,12 +399,47 @@
       background: rgba(15, 23, 42, 0.9);
     }
 
+    /* Budget row */
+    .budget-row {
+      margin: 8px 0 10px;
+      font-size: 0.75rem;
+    }
+
+    .budget-label {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .budget-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .budget-input {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.76rem;
+      padding: 5px 10px;
+      outline: none;
+      width: 120px;
+    }
+
+    .budget-status {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
     /* Entry form */
     .entry-form {
       display: grid;
       grid-template-columns: 0.9fr 0.8fr 0.8fr 1fr 0.8fr;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       align-items: center;
     }
 
@@ -461,6 +507,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     .helper-dot {
@@ -470,15 +517,101 @@
       background: #22c55e;
     }
 
-    .helper-text span {
-      color: var(--muted);
-    }
-
     .helper-text .badge {
       padding: 1px 7px;
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.6);
       font-size: 0.68rem;
+    }
+
+    /* Recurring card */
+    .recurring-card {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.35);
+      font-size: 0.74rem;
+    }
+
+    .recurring-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+
+    .recurring-title {
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .recurring-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .recurring-form {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr 0.9fr 0.8fr 0.6fr auto;
+      gap: 6px;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .recurring-form input,
+    .recurring-form select {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      font-size: 0.7rem;
+      padding: 5px 9px;
+      outline: none;
+    }
+
+    .recurring-form input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .recurring-list {
+      max-height: 80px;
+      overflow-y: auto;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .recurring-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 0;
+      border-bottom: 1px dashed rgba(30, 64, 175, 0.4);
+    }
+
+    .recurring-item:last-child {
+      border-bottom: none;
+    }
+
+    .recurring-main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recurring-meta {
+      font-size: 0.65rem;
+      color: #64748b;
+    }
+
+    .btn-rec-delete {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: transparent;
+      color: var(--muted);
+      width: 18px;
+      height: 18px;
+      font-size: 0.75rem;
+      padding: 0;
+      cursor: pointer;
     }
 
     /* Entries list */
@@ -647,6 +780,51 @@
       background: #f97373;
     }
 
+    /* Dashboard card */
+    .dashboard-card {
+      margin-top: 16px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .dash-panel {
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), #020617);
+      min-height: 220px;
+      position: relative;
+    }
+
+    .dash-title {
+      margin: 0 0 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .dash-empty {
+      font-size: 0.72rem;
+      color: var(--muted);
+      position: absolute;
+      inset: 46px 10px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .dash-panel canvas {
+      width: 100%;
+      height: 180px;
+    }
+
     /* Toast / messages */
     .toast {
       position: fixed;
@@ -714,14 +892,46 @@
         grid-auto-rows: auto;
       }
 
+      .recurring-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .btn-add {
         justify-self: stretch;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
     @media (max-width: 480px) {
       .entry-form {
         grid-template-columns: minmax(0, 1fr);
+      }
+
+      .recurring-form {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Print for PDF export */
+    @media print {
+      body {
+        padding: 0;
+        background: #ffffff;
+      }
+      .app-shell {
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+      }
+      .primary-btn,
+      .btn-ghost,
+      .btn-outline,
+      .btn-icon,
+      #toast {
+        display: none !important;
       }
     }
   </style>
@@ -755,10 +965,21 @@
           <span class="status-dot offline" id="localStatusDot"></span>
           <span id="statusText">Local only · not connected to Google Drive</span>
         </div>
+
+        <div class="status-line">
+          <span>Currency:</span>
+          <select id="currencySelect" class="currency-select">
+            <option value="$">USD ($)</option>
+            <option value="€">EUR (€)</option>
+            <option value="£">GBP (£)</option>
+            <option value="KSh">KES (KSh)</option>
+            <option value="R">ZAR (R)</option>
+          </select>
+        </div>
       </div>
     </header>
 
-    <!-- === Upcoming features full-width card INSIDE the shell === -->
+    <!-- Upcoming features full-width card -->
     <div class="feature-card">
       <div class="feature-card-title">I can add next:</div>
       <ul class="feature-card-list">
@@ -772,7 +993,6 @@
         <li>✔ Password lock</li>
       </ul>
     </div>
-    <!-- === End upcoming features card === -->
 
     <!-- Month selector -->
     <div class="month-row">
@@ -785,7 +1005,7 @@
     </div>
 
     <div class="grid-main">
-      <!-- Left: overview + add entry -->
+      <!-- Left: overview + add entry + recurring -->
       <section class="card">
         <div class="card-header">
           <h2>Overview</h2>
@@ -838,6 +1058,21 @@
           </div>
         </div>
 
+        <!-- Budget -->
+        <div class="budget-row">
+          <label for="budgetInput" class="budget-label">Monthly expense budget</label>
+          <div class="budget-controls">
+            <input
+              id="budgetInput"
+              type="number"
+              step="0.01"
+              placeholder="e.g. 2000"
+              class="budget-input"
+            />
+            <span id="budgetStatus" class="budget-status">No budget set</span>
+          </div>
+        </div>
+
         <div class="card-header" style="margin-top: 4px;">
           <h2>Add entry</h2>
           <span class="card-sub">Log income, expenses or savings</span>
@@ -882,6 +1117,52 @@
           <span class="helper-dot"></span>
           <span>Local autosave is always on. When you connect Google Drive, your data is backed up to a private file.</span>
           <span class="badge">Private • only you</span>
+        </div>
+
+        <!-- Recurring entries -->
+        <div class="recurring-card">
+          <div class="recurring-header">
+            <span class="recurring-title">Recurring entries</span>
+            <span class="recurring-sub">Automatically added each month</span>
+          </div>
+          <div class="recurring-form">
+            <select id="recurringType">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+              <option value="saving">Saving</option>
+            </select>
+            <input
+              id="recurringDescription"
+              type="text"
+              placeholder="e.g. Rent, Salary"
+            />
+            <input
+              id="recurringCategory"
+              type="text"
+              placeholder="Category"
+            />
+            <input
+              id="recurringAmount"
+              type="number"
+              step="0.01"
+              placeholder="Amount"
+            />
+            <input
+              id="recurringDay"
+              type="number"
+              min="1"
+              max="28"
+              placeholder="Day"
+            />
+            <button id="addRecurringBtn" type="button" class="btn-outline">
+              + Recurring
+            </button>
+          </div>
+          <div id="recurringList" class="recurring-list">
+            <span style="font-size: 0.7rem; color: var(--muted);">
+              No recurring entries yet.
+            </span>
+          </div>
         </div>
       </section>
 
@@ -932,19 +1213,43 @@
                 style="display: none;"
               />
             </button>
+            <button id="pdfBtn" class="btn-outline" type="button">
+              <span>Export to PDF</span>
+            </button>
           </div>
 
           <div class="sync-info">
-            <span
-              id="syncIndicator"
-              class="sync-indicator offline"
-            ></span>
+            <span id="syncIndicator" class="sync-indicator offline"></span>
             <span>Sync</span>
             <span id="syncStatusLabel" class="sync-badge">Local only</span>
           </div>
         </div>
       </section>
     </div>
+
+    <!-- Summary dashboard -->
+    <section class="card dashboard-card">
+      <div class="card-header">
+        <h2>Summary dashboard</h2>
+        <span class="card-sub">Trends across all months</span>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dash-panel">
+          <h3 class="dash-title">Expense breakdown (this month)</h3>
+          <canvas id="expensePieChart"></canvas>
+          <div id="expensePieEmpty" class="dash-empty">
+            Add expense entries in this month to see the category breakdown.
+          </div>
+        </div>
+        <div class="dash-panel">
+          <h3 class="dash-title">Net balance by month</h3>
+          <canvas id="netLineChart"></canvas>
+          <div id="netLineEmpty" class="dash-empty">
+            Log entries across multiple months to see the trend.
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <div id="toast" class="toast">
@@ -955,8 +1260,9 @@
     /************************************************************
      * CONFIGURATION
      ************************************************************/
-    // TODO: replace this with your own OAuth 2.0 Web client ID
-    const GOOGLE_CLIENT_ID = "41189729388-rksho3qtsot9qv7h2g4c0s8q81ghub6u.apps.googleusercontent.com";
+    // Your OAuth 2.0 Web client ID (already configured)
+    const GOOGLE_CLIENT_ID =
+      "41189729388-rksho3qtsot9qv7h2g4c0s8q81ghub6u.apps.googleusercontent.com";
 
     const GOOGLE_SCOPES = "https://www.googleapis.com/auth/drive.file";
     const LOCAL_STORAGE_KEY = "expense-tracker-data-v1";
@@ -965,19 +1271,30 @@
     /************************************************************
      * STATE
      ************************************************************/
-    let entries = []; // all entries, across months
-    let currentMonth = null; // YYYY-MM
+    let entries = [];            // all entries, across months
+    let recurringRules = [];     // recurring entries
+    let budgets = {};            // monthKey -> budget number
+    let currencySymbol = "$";    // display symbol
+    let currentMonth = null;     // YYYY-MM
+
     let tokenClient = null;
     let accessToken = null;
     let driveFileId = null;
     let isSyncing = false;
 
+    // Charts
+    let expensePieChart = null;
+    let netLineChart = null;
+
     /************************************************************
      * UTILITIES
      ************************************************************/
-    function formatCurrency(amount) {
+    function formatCurrency(amount, symbol = currencySymbol) {
       const n = Number(amount) || 0;
-      return "$" + n.toFixed(2);
+      if (symbol && symbol.length > 1) {
+        return symbol + " " + n.toFixed(2);
+      }
+      return (symbol || "$") + n.toFixed(2);
     }
 
     function getMonthKeyFromDate(dateStr) {
@@ -1009,6 +1326,9 @@
     function saveToLocal() {
       const payload = {
         entries,
+        recurringRules,
+        budgets,
+        currencySymbol,
         lastUpdated: Date.now(),
       };
       try {
@@ -1023,9 +1343,12 @@
         const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (!raw) return;
         const data = JSON.parse(raw);
-        if (Array.isArray(data.entries)) {
-          entries = data.entries;
-        }
+        if (Array.isArray(data.entries)) entries = data.entries;
+        if (Array.isArray(data.recurringRules))
+          recurringRules = data.recurringRules;
+        if (data.budgets && typeof data.budgets === "object")
+          budgets = data.budgets;
+        if (data.currencySymbol) currencySymbol = data.currencySymbol;
       } catch (e) {
         console.error("Failed to load from localStorage", e);
       }
@@ -1108,6 +1431,29 @@
         });
     }
 
+    function updateBudgetUI(expenseTotal) {
+      const input = document.getElementById("budgetInput");
+      const status = document.getElementById("budgetStatus");
+      if (!input || !status) return;
+
+      const b = budgets[currentMonth];
+      if (typeof b === "number" && b > 0) {
+        input.value = b;
+        const used = (expenseTotal / b) * 100;
+        let color = "#22c55e";
+        if (used >= 80 && used <= 100) color = "#facc15";
+        if (used > 100) color = "#f97373";
+        status.style.color = color;
+        status.textContent = `${used.toFixed(
+          0
+        )}% of ${formatCurrency(b)} used`;
+      } else {
+        input.value = "";
+        status.style.color = "var(--muted)";
+        status.textContent = "No budget set";
+      }
+    }
+
     function renderOverview() {
       const monthEntries = entries.filter((e) => e.monthKey === currentMonth);
 
@@ -1140,7 +1486,8 @@
         formatCurrency(expenseTotal);
       document.getElementById("savingTotalDisplay").textContent =
         formatCurrency(savingTotal);
-      document.getElementById("netTotalDisplay").textContent = formatCurrency(net);
+      document.getElementById("netTotalDisplay").textContent =
+        formatCurrency(net);
 
       document.getElementById(
         "incomeCountChip"
@@ -1166,6 +1513,8 @@
         netBadge.style.borderColor = "rgba(148,163,184,0.7)";
         netBadge.style.color = "var(--muted)";
       }
+
+      updateBudgetUI(expenseTotal);
     }
 
     function renderSyncState() {
@@ -1201,18 +1550,261 @@
       signInBtn.disabled = false;
     }
 
+    function renderRecurringList() {
+      const container = document.getElementById("recurringList");
+      container.innerHTML = "";
+      if (!recurringRules.length) {
+        container.innerHTML =
+          '<span style="font-size:0.7rem;color:var(--muted);">No recurring entries yet.</span>';
+        return;
+      }
+
+      recurringRules.forEach((rule) => {
+        const row = document.createElement("div");
+        row.className = "recurring-item";
+
+        const main = document.createElement("div");
+        main.className = "recurring-main";
+        const line1 = document.createElement("span");
+        line1.textContent = `${rule.description || "Untitled"} · ${
+          rule.type === "expense"
+            ? "Expense"
+            : rule.type === "income"
+            ? "Income"
+            : "Saving"
+        } · ${formatCurrency(rule.amount)}`;
+        const line2 = document.createElement("span");
+        line2.className = "recurring-meta";
+        line2.textContent = `Category: ${rule.category || "General"} · Day ${
+          rule.dayOfMonth
+        } each month`;
+        main.appendChild(line1);
+        main.appendChild(line2);
+
+        const del = document.createElement("button");
+        del.className = "btn-rec-delete";
+        del.type = "button";
+        del.textContent = "×";
+        del.title = "Delete recurring rule";
+        del.addEventListener("click", () => {
+          recurringRules = recurringRules.filter((r) => r.id !== rule.id);
+          saveToLocal();
+          renderRecurringList();
+          renderAll();
+        });
+
+        row.appendChild(main);
+        row.appendChild(del);
+        container.appendChild(row);
+      });
+    }
+
+    function renderDashboardCharts() {
+      if (typeof Chart === "undefined") return;
+
+      const monthEntries = entries.filter((e) => e.monthKey === currentMonth);
+
+      // ---- Expense pie (this month) ----
+      const pieCanvas = document.getElementById("expensePieChart");
+      const pieEmpty = document.getElementById("expensePieEmpty");
+      const expenseByCategory = {};
+      monthEntries.forEach((e) => {
+        if (e.type !== "expense") return;
+        const cat = e.category || "Other";
+        expenseByCategory[cat] =
+          (expenseByCategory[cat] || 0) + (Number(e.amount) || 0);
+      });
+
+      const labels = Object.keys(expenseByCategory);
+      const data = Object.values(expenseByCategory);
+
+      if (!labels.length) {
+        if (expensePieChart) {
+          expensePieChart.destroy();
+          expensePieChart = null;
+        }
+        pieEmpty.style.display = "flex";
+      } else {
+        pieEmpty.style.display = "none";
+        const ctx = pieCanvas.getContext("2d");
+        if (expensePieChart) {
+          expensePieChart.data.labels = labels;
+          expensePieChart.data.datasets[0].data = data;
+          expensePieChart.update();
+        } else {
+          expensePieChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data,
+                  backgroundColor: [
+                    "#4f46e5",
+                    "#22c55e",
+                    "#f97316",
+                    "#0ea5e9",
+                    "#ec4899",
+                    "#a855f7",
+                    "#facc15",
+                    "#94a3b8",
+                  ],
+                },
+              ],
+            },
+            options: {
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    color: "#e5e7eb",
+                    font: { size: 10 },
+                  },
+                },
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+            },
+          });
+        }
+      }
+
+      // ---- Net by month line chart ----
+      const lineCanvas = document.getElementById("netLineChart");
+      const lineEmpty = document.getElementById("netLineEmpty");
+      const monthMap = new Map(); // monthKey -> {income,expense,saving}
+
+      entries.forEach((e) => {
+        const key = e.monthKey;
+        if (!key) return;
+        if (!monthMap.has(key)) {
+          monthMap.set(key, { income: 0, expense: 0, saving: 0 });
+        }
+        const bucket = monthMap.get(key);
+        const amt = Number(e.amount) || 0;
+        if (e.type === "income") bucket.income += amt;
+        else if (e.type === "expense") bucket.expense += amt;
+        else if (e.type === "saving") bucket.saving += amt;
+      });
+
+      const sortedKeys = Array.from(monthMap.keys()).sort();
+      if (!sortedKeys.length) {
+        if (netLineChart) {
+          netLineChart.destroy();
+          netLineChart = null;
+        }
+        lineEmpty.style.display = "flex";
+      } else {
+        lineEmpty.style.display = "none";
+        const labels2 = sortedKeys.map(monthKeyToLabel);
+        const netData = sortedKeys.map((key) => {
+          const b = monthMap.get(key);
+          return b.income - b.expense - b.saving;
+        });
+
+        const ctx2 = lineCanvas.getContext("2d");
+        if (netLineChart) {
+          netLineChart.data.labels = labels2;
+          netLineChart.data.datasets[0].data = netData;
+          netLineChart.update();
+        } else {
+          netLineChart = new Chart(ctx2, {
+            type: "line",
+            data: {
+              labels: labels2,
+              datasets: [
+                {
+                  data: netData,
+                  borderColor: "#4ade80",
+                  backgroundColor: "rgba(34,197,94,0.15)",
+                  tension: 0.25,
+                  fill: true,
+                },
+              ],
+            },
+            options: {
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                x: {
+                  ticks: { color: "#9ca3af", font: { size: 9 } },
+                  grid: { display: false },
+                },
+                y: {
+                  ticks: {
+                    color: "#9ca3af",
+                    font: { size: 9 },
+                    callback: (val) => formatCurrency(val),
+                  },
+                  grid: { color: "rgba(30,64,175,0.3)" },
+                },
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+            },
+          });
+        }
+      }
+    }
+
     function renderAll() {
       renderMonthLabel();
+      // ensure recurring entries exist for this month
+      ensureRecurringAppliedForMonth(currentMonth);
       renderEntries();
       renderOverview();
       renderSyncState();
+      renderRecurringList();
+      renderDashboardCharts();
+    }
+
+    /************************************************************
+     * RECURRING
+     ************************************************************/
+    function ensureRecurringAppliedForMonth(monthKey) {
+      if (!monthKey || !recurringRules.length) return;
+
+      const [yearStr, monthStr] = monthKey.split("-");
+      const year = Number(yearStr);
+      const month = Number(monthStr) - 1;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let changed = false;
+
+      recurringRules.forEach((rule) => {
+        const exists = entries.some(
+          (e) => e.monthKey === monthKey && e.recurringId === rule.id
+        );
+        if (exists) return;
+
+        const day = Math.min(rule.dayOfMonth, daysInMonth);
+        const dateStr = new Date(year, month, day).toISOString().slice(0, 10);
+
+        const entry = {
+          id:
+            (crypto.randomUUID && crypto.randomUUID()) ||
+            String(Date.now()) + Math.random().toString(16).slice(2),
+          date: dateStr,
+          type: rule.type,
+          category: rule.category || "General",
+          description: rule.description || "",
+          amount: rule.amount,
+          monthKey,
+          recurringId: rule.id,
+        };
+        entries.push(entry);
+        changed = true;
+      });
+
+      if (changed) saveToLocal();
     }
 
     /************************************************************
      * GOOGLE AUTH & DRIVE
      ************************************************************/
     function initGoogle() {
-      if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === "YOUR_CLIENT_ID_HERE") {
+      if (!GOOGLE_CLIENT_ID) {
         console.warn(
           "Google client ID not configured. Sign in will not work until you add your client ID."
         );
@@ -1277,10 +1869,13 @@
           const data = fileContentResp.body
             ? JSON.parse(fileContentResp.body)
             : fileContentResp.result || {};
-          if (Array.isArray(data.entries)) {
-            entries = data.entries;
-            saveToLocal(); // keep local in sync
-          }
+          if (Array.isArray(data.entries)) entries = data.entries;
+          if (Array.isArray(data.recurringRules))
+            recurringRules = data.recurringRules;
+          if (data.budgets && typeof data.budgets === "object")
+            budgets = data.budgets;
+          if (data.currencySymbol) currencySymbol = data.currencySymbol;
+          saveToLocal(); // keep local in sync
         } else {
           // create new file with current local data
           await createOrUpdateDriveFile(true);
@@ -1306,6 +1901,9 @@
       const payload = JSON.stringify(
         {
           entries,
+          recurringRules,
+          budgets,
+          currencySymbol,
           lastUpdated: Date.now(),
         },
         null,
@@ -1395,7 +1993,9 @@
       }
 
       const entry = {
-        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        id:
+          (crypto.randomUUID && crypto.randomUUID()) ||
+          String(Date.now()) + Math.random().toString(16).slice(2),
         date,
         type,
         category,
@@ -1438,6 +2038,9 @@
       const payload = JSON.stringify(
         {
           entries,
+          recurringRules,
+          budgets,
+          currencySymbol,
           exportedAt: new Date().toISOString(),
         },
         null,
@@ -1465,7 +2068,18 @@
             throw new Error("Invalid file format");
           }
           entries = data.entries;
+          recurringRules = Array.isArray(data.recurringRules)
+            ? data.recurringRules
+            : [];
+          budgets =
+            data.budgets && typeof data.budgets === "object"
+              ? data.budgets
+              : {};
+          currencySymbol = data.currencySymbol || "$";
           saveToLocal();
+          // update currency selector
+          const curSel = document.getElementById("currencySelect");
+          if (curSel) curSel.value = currencySymbol;
           renderAll();
           showToast("Backup imported");
         } catch (err) {
@@ -1474,6 +2088,51 @@
         }
       };
       reader.readAsText(file);
+    }
+
+    function addRecurringRule() {
+      const typeEl = document.getElementById("recurringType");
+      const descEl = document.getElementById("recurringDescription");
+      const catEl = document.getElementById("recurringCategory");
+      const amtEl = document.getElementById("recurringAmount");
+      const dayEl = document.getElementById("recurringDay");
+
+      const type = typeEl.value;
+      const description = descEl.value.trim();
+      const category = catEl.value.trim() || "General";
+      const amount = parseFloat(amtEl.value);
+      const day = parseInt(dayEl.value, 10);
+
+      if (!amount || Number.isNaN(amount) || amount <= 0) {
+        showToast("Recurring amount must be greater than 0", true);
+        return;
+      }
+      if (!day || Number.isNaN(day) || day < 1 || day > 28) {
+        showToast("Day must be between 1 and 28", true);
+        return;
+      }
+
+      const rule = {
+        id:
+          (crypto.randomUUID && crypto.randomUUID()) ||
+          String(Date.now()) + Math.random().toString(16).slice(2),
+        type,
+        description,
+        category,
+        amount,
+        dayOfMonth: day,
+      };
+
+      recurringRules.push(rule);
+      saveToLocal();
+      renderRecurringList();
+      ensureRecurringAppliedForMonth(currentMonth);
+      renderAll();
+      showToast("Recurring entry added");
+
+      descEl.value = "";
+      amtEl.value = "";
+      // keep category/day
     }
 
     /************************************************************
@@ -1491,6 +2150,17 @@
       // pre-fill date input with today
       const dateInput = document.getElementById("dateInput");
       dateInput.valueAsDate = now;
+
+      // set currency selector to saved symbol
+      const curSel = document.getElementById("currencySelect");
+      if (curSel) {
+        curSel.value = currencySymbol;
+        curSel.addEventListener("change", () => {
+          currencySymbol = curSel.value || "$";
+          saveToLocal();
+          renderAll();
+        });
+      }
 
       // events
       document
@@ -1512,6 +2182,10 @@
         .getElementById("exportBtn")
         .addEventListener("click", handleExport);
 
+      document.getElementById("pdfBtn").addEventListener("click", () => {
+        window.print();
+      });
+
       document.getElementById("importBtn").addEventListener("click", () => {
         document.getElementById("importFileInput").click();
       });
@@ -1524,7 +2198,24 @@
           e.target.value = "";
         });
 
+      document
+        .getElementById("addRecurringBtn")
+        .addEventListener("click", addRecurringRule);
+
+      const budgetInput = document.getElementById("budgetInput");
+      budgetInput.addEventListener("change", () => {
+        const v = parseFloat(budgetInput.value);
+        if (!v || Number.isNaN(v) || v <= 0) {
+          delete budgets[currentMonth];
+        } else {
+          budgets[currentMonth] = v;
+        }
+        saveToLocal();
+        renderAll();
+      });
+
       renderAll();
+
       // delay initGoogle slightly to make sure scripts are loaded
       setTimeout(initGoogle, 500);
     }
