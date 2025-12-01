@@ -488,6 +488,7 @@
       padding-top: 8px;
       border-top: 1px dashed rgba(148, 163, 184, 0.35);
       font-size: 0.74rem;
+      overflow: hidden; /* prevent outer expansion */
     }
 
     .recurring-header {
@@ -532,8 +533,8 @@
     }
 
     .recurring-list {
-      max-height: 160px;
-      overflow-y: auto;
+      max-height: 160px;      /* keeps list fixed */
+      overflow-y: auto;       /* scroll vertically */
       overflow-x: hidden;
       padding-right: 4px;
       font-size: 0.7rem;
