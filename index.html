@@ -9,8 +9,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 
-  <!-- Chart.js for dashboard charts -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- (Chart.js removed because dashboard is removed) -->
 
   <style>
     :root {
@@ -482,8 +481,6 @@
       font-size: 0.68rem;
     }
 
-    /* (Recurring styles kept but unused – safe) */
-
     /* Entries list */
     .entries-table {
       width: 100%;
@@ -650,87 +647,23 @@
       background: #f97373;
     }
 
-    /* Dashboard card */
-    .dashboard-card {
-      margin-top: 16px;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-      gap: 14px;
-      margin-top: 4px;
-    }
-
-    .dash-panel {
-      border-radius: 16px;
-      padding: 10px 10px 12px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), #020617);
-      min-height: 220px;
-      position: relative;
-    }
-
-    .dash-title {
-      margin: 0 0 4px;
-      font-size: 0.8rem;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .dash-empty {
-      font-size: 0.72rem;
-      color: var(--muted);
-      position: absolute;
-      inset: 46px 10px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .dash-panel canvas {
-      width: 100%;
-      height: 180px;
-    }
-
-    /* Toast / messages */
-    .toast {
-      position: fixed;
-      bottom: 18px;
-      right: 18px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      font-size: 0.76rem;
-      color: var(--text);
-      display: none;
-      align-items: center;
-      gap: 8px;
-      z-index: 50;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.85);
-    }
-
-    .toast.show {
-      display: inline-flex;
-      animation: fadeInUp 0.18s ease-out;
-    }
-
-    .toast.bad {
-      border-color: rgba(248, 113, 113, 0.9);
-      color: #fecaca;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
+    /* Print for PDF export */
+    @media print {
+      body {
+        padding: 0;
+        background: #ffffff;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      .app-shell {
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+      }
+      .primary-btn,
+      .btn-ghost,
+      .btn-outline,
+      .btn-icon,
+      #toast {
+        display: none !important;
       }
     }
 
@@ -765,35 +698,11 @@
       .btn-add {
         justify-self: stretch;
       }
-
-      .dashboard-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
     }
 
     @media (max-width: 480px) {
       .entry-form {
         grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    /* Print for PDF export */
-    @media print {
-      body {
-        padding: 0;
-        background: #ffffff;
-      }
-      .app-shell {
-        box-shadow: none;
-        border-radius: 0;
-        border: none;
-      }
-      .primary-btn,
-      .btn-ghost,
-      .btn-outline,
-      .btn-icon,
-      #toast {
-        display: none !important;
       }
     }
   </style>
@@ -1027,30 +936,6 @@
         </div>
       </section>
     </div>
-
-    <!-- Summary dashboard -->
-    <section class="card dashboard-card">
-      <div class="card-header">
-        <h2>Summary dashboard</h2>
-        <span class="card-sub">Trends across all months</span>
-      </div>
-      <div class="dashboard-grid">
-        <div class="dash-panel">
-          <h3 class="dash-title">Expense breakdown (this month)</h3>
-          <canvas id="expensePieChart"></canvas>
-          <div id="expensePieEmpty" class="dash-empty">
-            Add expense entries in this month to see the category breakdown.
-          </div>
-        </div>
-        <div class="dash-panel">
-          <h3 class="dash-title">Net balance by month</h3>
-          <canvas id="netLineChart"></canvas>
-          <div id="netLineEmpty" class="dash-empty">
-            Log entries across multiple months to see the trend.
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 
   <div id="toast" class="toast">
@@ -1072,7 +957,7 @@
      * STATE
      ************************************************************/
     let entries = [];            // all entries, across months
-    let recurringRules = [];     // kept for data compatibility, not used
+    let recurringRules = [];     // kept for compatibility (not used)
     let budgets = {};            // monthKey -> budget number
     let currencySymbol = "$";    // display symbol
     let currentMonth = null;     // YYYY-MM
@@ -1081,10 +966,6 @@
     let accessToken = null;
     let driveFileId = null;
     let isSyncing = false;
-
-    // Charts
-    let expensePieChart = null;
-    let netLineChart = null;
 
     /************************************************************
      * UTILITIES
@@ -1350,161 +1231,11 @@
       signInBtn.disabled = false;
     }
 
-    function renderDashboardCharts() {
-      if (typeof Chart === "undefined") return;
-
-      const monthEntries = entries.filter((e) => e.monthKey === currentMonth);
-
-      // ---- Expense pie (this month) ----
-      const pieCanvas = document.getElementById("expensePieChart");
-      const pieEmpty = document.getElementById("expensePieEmpty");
-      const expenseByCategory = {};
-      monthEntries.forEach((e) => {
-        if (e.type !== "expense") return;
-        const cat = e.category || "Other";
-        expenseByCategory[cat] =
-          (expenseByCategory[cat] || 0) + (Number(e.amount) || 0);
-      });
-
-      const labels = Object.keys(expenseByCategory);
-      const data = Object.values(expenseByCategory);
-
-      if (!labels.length) {
-        if (expensePieChart) {
-          expensePieChart.destroy();
-          expensePieChart = null;
-        }
-        pieEmpty.style.display = "flex";
-      } else {
-        pieEmpty.style.display = "none";
-        const ctx = pieCanvas.getContext("2d");
-        if (expensePieChart) {
-          expensePieChart.data.labels = labels;
-          expensePieChart.data.datasets[0].data = data;
-          expensePieChart.update();
-        } else {
-          expensePieChart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-              labels,
-              datasets: [
-                {
-                  data,
-                  backgroundColor: [
-                    "#4f46e5",
-                    "#22c55e",
-                    "#f97316",
-                    "#0ea5e9",
-                    "#ec4899",
-                    "#a855f7",
-                    "#facc15",
-                    "#94a3b8",
-                  ],
-                },
-              ],
-            },
-            options: {
-              plugins: {
-                legend: {
-                  position: "bottom",
-                  labels: {
-                    color: "#e5e7eb",
-                    font: { size: 10 },
-                  },
-                },
-              },
-              responsive: true,
-              maintainAspectRatio: false,
-            },
-          });
-        }
-      }
-
-      // ---- Net by month line chart ----
-      const lineCanvas = document.getElementById("netLineChart");
-      const lineEmpty = document.getElementById("netLineEmpty");
-      const monthMap = new Map(); // monthKey -> {income,expense,saving}
-
-      entries.forEach((e) => {
-        const key = e.monthKey;
-        if (!key) return;
-        if (!monthMap.has(key)) {
-          monthMap.set(key, { income: 0, expense: 0, saving: 0 });
-        }
-        const bucket = monthMap.get(key);
-        const amt = Number(e.amount) || 0;
-        if (e.type === "income") bucket.income += amt;
-        else if (e.type === "expense") bucket.expense += amt;
-        else if (e.type === "saving") bucket.saving += amt;
-      });
-
-      const sortedKeys = Array.from(monthMap.keys()).sort();
-      if (!sortedKeys.length) {
-        if (netLineChart) {
-          netLineChart.destroy();
-          netLineChart = null;
-        }
-        lineEmpty.style.display = "flex";
-      } else {
-        lineEmpty.style.display = "none";
-        const labels2 = sortedKeys.map(monthKeyToLabel);
-        const netData = sortedKeys.map((key) => {
-          const b = monthMap.get(key);
-          return b.income - b.expense - b.saving;
-        });
-
-        const ctx2 = lineCanvas.getContext("2d");
-        if (netLineChart) {
-          netLineChart.data.labels = labels2;
-          netLineChart.data.datasets[0].data = netData;
-          netLineChart.update();
-        } else {
-          netLineChart = new Chart(ctx2, {
-            type: "line",
-            data: {
-              labels: labels2,
-              datasets: [
-                {
-                  data: netData,
-                  borderColor: "#4ade80",
-                  backgroundColor: "rgba(34,197,94,0.15)",
-                  tension: 0.25,
-                  fill: true,
-                },
-              ],
-            },
-            options: {
-              plugins: {
-                legend: { display: false },
-              },
-              scales: {
-                x: {
-                  ticks: { color: "#9ca3af", font: { size: 9 } },
-                  grid: { display: false },
-                },
-                y: {
-                  ticks: {
-                    color: "#9ca3af",
-                    font: { size: 9 },
-                    callback: (val) => formatCurrency(val),
-                  },
-                  grid: { color: "rgba(30,64,175,0.3)" },
-                },
-              },
-              responsive: true,
-              maintainAspectRatio: false,
-            },
-          });
-        }
-      }
-    }
-
     function renderAll() {
       renderMonthLabel();
       renderEntries();
       renderOverview();
       renderSyncState();
-      renderDashboardCharts();
     }
 
     /************************************************************
