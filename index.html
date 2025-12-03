@@ -9,8 +9,6 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js"></script>
 
-  <!-- (Chart.js removed because dashboard is removed) -->
-
   <style>
     :root {
       --bg: #020617;
@@ -647,6 +645,123 @@
       background: #f97373;
     }
 
+    /* Insights (year + category) */
+    .insights-card {
+      margin-top: 18px;
+    }
+
+    .insights-layout {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .insights-column {
+      flex: 1 1 260px;
+      font-size: 0.75rem;
+    }
+
+    .insights-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .year-select {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      outline: none;
+    }
+
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .metric-pill {
+      border-radius: 12px;
+      padding: 6px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .metric-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .metric-value {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .simple-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+      margin-top: 4px;
+    }
+
+    .simple-table th,
+    .simple-table td {
+      padding: 4px 4px;
+      text-align: left;
+    }
+
+    .simple-table thead {
+      color: var(--muted);
+    }
+
+    .simple-table tbody tr:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .simple-table tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.86);
+    }
+
+    .insights-empty {
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    /* Toast / messages */
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.76rem;
+      color: var(--text);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 50;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.85);
+    }
+
+    .toast.show {
+      display: inline-flex;
+    }
+
+    .toast.bad {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
     /* Print for PDF export */
     @media print {
       body {
@@ -698,10 +813,18 @@
       .btn-add {
         justify-self: stretch;
       }
+
+      .metrics-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 480px) {
       .entry-form {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .metrics-row {
         grid-template-columns: minmax(0, 1fr);
       }
     }
@@ -936,6 +1059,75 @@
         </div>
       </section>
     </div>
+
+    <!-- Insights: year + categories -->
+    <section class="card insights-card">
+      <div class="card-header">
+        <h2>Insights</h2>
+        <span class="card-sub">Spending & income by year, month & category</span>
+      </div>
+      <div class="insights-layout">
+        <!-- Year overview -->
+        <div class="insights-column">
+          <div class="insights-header-row">
+            <span>Year overview</span>
+            <select id="yearSelect" class="year-select"></select>
+          </div>
+          <div class="metrics-row">
+            <div class="metric-pill">
+              <div class="metric-label">Income</div>
+              <div class="metric-value" id="yearIncomeDisplay">$0.00</div>
+            </div>
+            <div class="metric-pill">
+              <div class="metric-label">Expenses</div>
+              <div class="metric-value" id="yearExpenseDisplay">$0.00</div>
+            </div>
+            <div class="metric-pill">
+              <div class="metric-label">Savings</div>
+              <div class="metric-value" id="yearSavingDisplay">$0.00</div>
+            </div>
+            <div class="metric-pill">
+              <div class="metric-label">Net</div>
+              <div class="metric-value" id="yearNetDisplay">$0.00</div>
+            </div>
+          </div>
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th style="text-align:right;">Income</th>
+                <th style="text-align:right;">Expenses</th>
+                <th style="text-align:right;">Savings</th>
+                <th style="text-align:right;">Net</th>
+              </tr>
+            </thead>
+            <tbody id="yearMonthBody"></tbody>
+          </table>
+          <div id="yearEmpty" class="insights-empty" style="display:none;">
+            No entries for this year yet.
+          </div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="insights-column">
+          <div class="insights-header-row">
+            <span>Expense categories (<span id="categoryMonthLabel">this month</span>)</span>
+          </div>
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th style="text-align:right;">Total spent</th>
+              </tr>
+            </thead>
+            <tbody id="categoryBody"></tbody>
+          </table>
+          <div id="categoryEmpty" class="insights-empty" style="display:none;">
+            No expense entries for this month yet.
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
   <div id="toast" class="toast">
@@ -966,6 +1158,8 @@
     let accessToken = null;
     let driveFileId = null;
     let isSyncing = false;
+
+    let selectedYear = new Date().getFullYear();
 
     /************************************************************
      * UTILITIES
@@ -1231,11 +1425,193 @@
       signInBtn.disabled = false;
     }
 
+    /************* INSIGHTS: YEAR + CATEGORY *****************/
+    function getAllYearsFromEntries() {
+      const years = new Set();
+      entries.forEach((e) => {
+        if (!e.date) return;
+        const d = new Date(e.date);
+        if (!Number.isNaN(d.getTime())) {
+          years.add(d.getFullYear());
+        }
+      });
+      // Always include current year so dropdown never looks empty
+      const nowYear = new Date().getFullYear();
+      years.add(nowYear);
+      return Array.from(years).sort((a, b) => a - b);
+    }
+
+    function renderYearOptions() {
+      const select = document.getElementById("yearSelect");
+      if (!select) return;
+
+      const years = getAllYearsFromEntries();
+      if (!years.length) return;
+
+      if (!years.includes(selectedYear)) {
+        selectedYear = years[years.length - 1];
+      }
+
+      select.innerHTML = "";
+      years.forEach((y) => {
+        const opt = document.createElement("option");
+        opt.value = String(y);
+        opt.textContent = y;
+        if (y === selectedYear) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderYearSummary() {
+      const year = selectedYear || new Date().getFullYear();
+      const yearEmpty = document.getElementById("yearEmpty");
+      const tbody = document.getElementById("yearMonthBody");
+
+      let incomeTotal = 0;
+      let expenseTotal = 0;
+      let savingTotal = 0;
+      const perMonth = Array.from({ length: 12 }, () => ({
+        income: 0,
+        expense: 0,
+        saving: 0,
+      }));
+
+      entries.forEach((e) => {
+        if (!e.date) return;
+        const d = new Date(e.date);
+        if (Number.isNaN(d.getTime())) return;
+        const y = d.getFullYear();
+        if (y !== year) return;
+        const m = d.getMonth(); // 0-11
+        const amt = Number(e.amount) || 0;
+
+        if (e.type === "income") {
+          incomeTotal += amt;
+          perMonth[m].income += amt;
+        } else if (e.type === "expense") {
+          expenseTotal += amt;
+          perMonth[m].expense += amt;
+        } else if (e.type === "saving") {
+          savingTotal += amt;
+          perMonth[m].saving += amt;
+        }
+      });
+
+      const netTotal = incomeTotal - expenseTotal - savingTotal;
+
+      document.getElementById("yearIncomeDisplay").textContent =
+        formatCurrency(incomeTotal);
+      document.getElementById("yearExpenseDisplay").textContent =
+        formatCurrency(expenseTotal);
+      document.getElementById("yearSavingDisplay").textContent =
+        formatCurrency(savingTotal);
+      document.getElementById("yearNetDisplay").textContent =
+        formatCurrency(netTotal);
+
+      tbody.innerHTML = "";
+
+      let anyRows = false;
+      for (let i = 0; i < 12; i++) {
+        const data = perMonth[i];
+        if (!data.income && !data.expense && !data.saving) continue;
+        anyRows = true;
+        const tr = document.createElement("tr");
+
+        const monthName = new Date(year, i, 1).toLocaleString(undefined, {
+          month: "short",
+        });
+
+        const net = data.income - data.expense - data.saving;
+
+        const tdMonth = document.createElement("td");
+        tdMonth.textContent = monthName;
+
+        const tdInc = document.createElement("td");
+        tdInc.style.textAlign = "right";
+        tdInc.textContent = formatCurrency(data.income);
+
+        const tdExp = document.createElement("td");
+        tdExp.style.textAlign = "right";
+        tdExp.textContent = formatCurrency(data.expense);
+
+        const tdSav = document.createElement("td");
+        tdSav.style.textAlign = "right";
+        tdSav.textContent = formatCurrency(data.saving);
+
+        const tdNet = document.createElement("td");
+        tdNet.style.textAlign = "right";
+        tdNet.textContent = formatCurrency(net);
+
+        tr.appendChild(tdMonth);
+        tr.appendChild(tdInc);
+        tr.appendChild(tdExp);
+        tr.appendChild(tdSav);
+        tr.appendChild(tdNet);
+
+        tbody.appendChild(tr);
+      }
+
+      if (!anyRows) {
+        yearEmpty.style.display = "block";
+      } else {
+        yearEmpty.style.display = "none";
+      }
+    }
+
+    function renderCategorySummary() {
+      const label = document.getElementById("categoryMonthLabel");
+      if (label) label.textContent = monthKeyToLabel(currentMonth);
+
+      const tbody = document.getElementById("categoryBody");
+      const empty = document.getElementById("categoryEmpty");
+      if (!tbody || !empty) return;
+
+      const monthEntries = entries.filter(
+        (e) => e.monthKey === currentMonth && e.type === "expense"
+      );
+
+      if (!monthEntries.length) {
+        tbody.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+
+      const map = {};
+      monthEntries.forEach((e) => {
+        const cat = e.category || "General";
+        map[cat] = (map[cat] || 0) + (Number(e.amount) || 0);
+      });
+
+      const rows = Object.entries(map).sort((a, b) => b[1] - a[1]);
+
+      tbody.innerHTML = "";
+      rows.forEach(([cat, total]) => {
+        const tr = document.createElement("tr");
+        const tdCat = document.createElement("td");
+        tdCat.textContent = cat;
+        const tdTotal = document.createElement("td");
+        tdTotal.style.textAlign = "right";
+        tdTotal.textContent = formatCurrency(total);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdTotal);
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderInsights() {
+      renderYearOptions();
+      renderYearSummary();
+      renderCategorySummary();
+    }
+
     function renderAll() {
       renderMonthLabel();
       renderEntries();
       renderOverview();
       renderSyncState();
+      renderInsights();
     }
 
     /************************************************************
@@ -1540,6 +1916,8 @@
         now.getMonth() + 1
       ).padStart(2, "0")}`;
 
+      selectedYear = now.getFullYear();
+
       // pre-fill date input with today
       const dateInput = document.getElementById("dateInput");
       dateInput.valueAsDate = now;
@@ -1602,6 +1980,17 @@
         saveToLocal();
         renderAll();
       });
+
+      const yearSelect = document.getElementById("yearSelect");
+      if (yearSelect) {
+        yearSelect.addEventListener("change", () => {
+          const v = parseInt(yearSelect.value, 10);
+          if (!Number.isNaN(v)) {
+            selectedYear = v;
+            renderInsights();
+          }
+        });
+      }
 
       renderAll();
 
