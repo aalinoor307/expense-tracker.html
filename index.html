@@ -5,9 +5,9 @@
   <title>Monthly Expense Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Google OAuth & API scripts (keep these) -->
+  <!-- Google OAuth & API scripts -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
 
   <style>
     :root {
@@ -645,20 +645,24 @@
       background: #f97373;
     }
 
-    /* Insights (year + category) */
+    /* Insights */
     .insights-card {
-      margin-top: 18px;
+      margin-top: 16px;
     }
 
-    .insights-layout {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
+    .insights-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 14px;
+      margin-top: 4px;
     }
 
-    .insights-column {
-      flex: 1 1 260px;
-      font-size: 0.75rem;
+    .insights-panel {
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), #020617);
+      min-height: 150px;
     }
 
     .insights-header-row {
@@ -666,72 +670,54 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--muted);
     }
 
-    .year-select {
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.9);
+    .insights-label {
+      font-size: 0.78rem;
+      font-weight: 500;
       color: var(--muted);
-      font-size: 0.72rem;
+    }
+
+    .insights-select {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--muted);
       padding: 3px 8px;
+      font-size: 0.75rem;
       outline: none;
     }
 
-    .metrics-row {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .metric-pill {
-      border-radius: 12px;
-      padding: 6px 8px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      background: rgba(15, 23, 42, 0.85);
-    }
-
-    .metric-label {
-      font-size: 0.65rem;
-      color: var(--muted);
-    }
-
-    .metric-value {
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-top: 2px;
-    }
-
-    .simple-table {
+    .insights-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.72rem;
-      margin-top: 4px;
+      font-size: 0.74rem;
+      margin-top: 6px;
     }
 
-    .simple-table th,
-    .simple-table td {
+    .insights-table th,
+    .insights-table td {
       padding: 4px 4px;
       text-align: left;
     }
 
-    .simple-table thead {
+    .insights-table th {
       color: var(--muted);
+      border-bottom: 1px solid rgba(30, 64, 175, 0.6);
+      font-size: 0.72rem;
     }
 
-    .simple-table tbody tr:nth-child(odd) {
-      background: rgba(15, 23, 42, 0.9);
-    }
-
-    .simple-table tbody tr:nth-child(even) {
-      background: rgba(15, 23, 42, 0.86);
+    .insights-table td.amount-cell {
+      text-align: right;
     }
 
     .insights-empty {
       font-size: 0.72rem;
       color: var(--muted);
-      padding: 8px 4px;
+      margin-top: 8px;
       text-align: center;
     }
 
@@ -755,11 +741,23 @@
 
     .toast.show {
       display: inline-flex;
+      animation: fadeInUp 0.18s ease-out;
     }
 
     .toast.bad {
       border-color: rgba(248, 113, 113, 0.9);
       color: #fecaca;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Print for PDF export */
@@ -814,17 +812,13 @@
         justify-self: stretch;
       }
 
-      .metrics-row {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .insights-grid {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
     @media (max-width: 480px) {
       .entry-form {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .metrics-row {
         grid-template-columns: minmax(0, 1fr);
       }
     }
@@ -847,7 +841,7 @@
         </div>
 
         <button id="googleSignInBtn" class="primary-btn" type="button">
-          <span>Sign in with Google</span>
+          <span id="googleSignInLabel">Loading Google…</span>
         </button>
 
         <button id="syncNowBtn" class="btn-ghost" type="button" disabled>
@@ -857,7 +851,7 @@
 
         <div class="status-line">
           <span class="status-dot offline" id="localStatusDot"></span>
-          <span id="statusText">Local only · not connected to Google Drive</span>
+          <span id="statusText">Local only · Google sign-in loading…</span>
         </div>
 
         <div class="status-line">
@@ -921,7 +915,7 @@
             </div>
             <div class="overview-value" id="savingTotalDisplay">$0.00</div>
             <div style="font-size: 0.68rem; color: var(--muted); margin-top: 2px;">
-              Set aside for goals
+              Set aside for goals & investments
             </div>
           </div>
 
@@ -972,6 +966,8 @@
             <option value="Rent">Rent</option>
             <option value="Transport">Transport</option>
             <option value="Shopping">Shopping</option>
+            <option value="Bills">Bills</option>
+            <option value="Debt">Debt</option>
             <option value="Salary">Salary</option>
             <option value="Side hustle">Side hustle</option>
             <option value="Investment">Investment</option>
@@ -1060,70 +1056,68 @@
       </section>
     </div>
 
-    <!-- Insights: year + categories -->
+    <!-- Insights -->
     <section class="card insights-card">
       <div class="card-header">
         <h2>Insights</h2>
-        <span class="card-sub">Spending & income by year, month & category</span>
+        <span class="card-sub">Spending &amp; income by year, month &amp; category</span>
       </div>
-      <div class="insights-layout">
+      <div class="insights-grid">
         <!-- Year overview -->
-        <div class="insights-column">
+        <div class="insights-panel">
           <div class="insights-header-row">
-            <span>Year overview</span>
-            <select id="yearSelect" class="year-select"></select>
+            <span class="insights-label">Year overview</span>
+            <select id="insightsYearSelect" class="insights-select"></select>
           </div>
-          <div class="metrics-row">
-            <div class="metric-pill">
-              <div class="metric-label">Income</div>
-              <div class="metric-value" id="yearIncomeDisplay">$0.00</div>
-            </div>
-            <div class="metric-pill">
-              <div class="metric-label">Expenses</div>
-              <div class="metric-value" id="yearExpenseDisplay">$0.00</div>
-            </div>
-            <div class="metric-pill">
-              <div class="metric-label">Savings</div>
-              <div class="metric-value" id="yearSavingDisplay">$0.00</div>
-            </div>
-            <div class="metric-pill">
-              <div class="metric-label">Net</div>
-              <div class="metric-value" id="yearNetDisplay">$0.00</div>
-            </div>
-          </div>
-          <table class="simple-table">
+          <table class="insights-table">
             <thead>
               <tr>
-                <th>Month</th>
-                <th style="text-align:right;">Income</th>
-                <th style="text-align:right;">Expenses</th>
-                <th style="text-align:right;">Savings</th>
-                <th style="text-align:right;">Net</th>
+                <th>Type</th>
+                <th class="amount-cell">Total</th>
               </tr>
             </thead>
-            <tbody id="yearMonthBody"></tbody>
+            <tbody>
+              <tr>
+                <td>Income</td>
+                <td id="yearIncomeTotal" class="amount-cell">$0.00</td>
+              </tr>
+              <tr>
+                <td>Expenses</td>
+                <td id="yearExpenseTotal" class="amount-cell">$0.00</td>
+              </tr>
+              <tr>
+                <td>Savings &amp; investments</td>
+                <td id="yearSavingTotal" class="amount-cell">$0.00</td>
+              </tr>
+              <tr>
+                <td><strong>Net</strong></td>
+                <td id="yearNetTotal" class="amount-cell">$0.00</td>
+              </tr>
+            </tbody>
           </table>
-          <div id="yearEmpty" class="insights-empty" style="display:none;">
-            No entries for this year yet.
-          </div>
         </div>
 
         <!-- Category breakdown -->
-        <div class="insights-column">
+        <div class="insights-panel">
           <div class="insights-header-row">
-            <span>Expense categories (<span id="categoryMonthLabel">this month</span>)</span>
+            <span class="insights-label" id="insightsMonthLabel">No month</span>
+            <select id="insightsTypeSelect" class="insights-select">
+              <option value="expense">Expenses</option>
+              <option value="income">Income</option>
+              <option value="saving">Savings &amp; investments</option>
+            </select>
           </div>
-          <table class="simple-table">
+          <table class="insights-table">
             <thead>
               <tr>
                 <th>Category</th>
-                <th style="text-align:right;">Total spent</th>
+                <th class="amount-cell">Total this month</th>
               </tr>
             </thead>
-            <tbody id="categoryBody"></tbody>
+            <tbody id="insightsCategoryBody"></tbody>
           </table>
-          <div id="categoryEmpty" class="insights-empty" style="display:none;">
-            No expense entries for this month yet.
+          <div id="insightsCategoryEmpty" class="insights-empty" style="display:none;">
+            No entries of this type in this month yet.
           </div>
         </div>
       </div>
@@ -1158,8 +1152,7 @@
     let accessToken = null;
     let driveFileId = null;
     let isSyncing = false;
-
-    let selectedYear = new Date().getFullYear();
+    let googleInitAttempts = 0;
 
     /************************************************************
      * UTILITIES
@@ -1227,6 +1220,21 @@
       } catch (e) {
         console.error("Failed to load from localStorage", e);
       }
+    }
+
+    function getAllYears() {
+      const years = new Set();
+      entries.forEach((e) => {
+        if (!e.date) return;
+        const d = new Date(e.date);
+        if (!Number.isNaN(d.getTime())) {
+          years.add(d.getFullYear());
+        }
+      });
+      if (!years.size) {
+        years.add(new Date().getFullYear());
+      }
+      return Array.from(years).sort((a, b) => a - b);
     }
 
     /************************************************************
@@ -1400,6 +1408,7 @@
       const statusText = document.getElementById("statusText");
       const syncBtn = document.getElementById("syncNowBtn");
       const signInBtn = document.getElementById("googleSignInBtn");
+      const signInLabel = document.getElementById("googleSignInLabel");
 
       if (!accessToken) {
         indicator.classList.add("offline");
@@ -1407,13 +1416,22 @@
         driveStatusText.textContent =
           "Data stays on this device until you connect Google Drive";
         pillDot.style.background = "#22c55e";
-        statusText.textContent = "Local only · not connected to Google Drive";
         syncBtn.disabled = true;
         syncBtn.textContent = "Sync now";
-        signInBtn.disabled = false;
+
+        if (!tokenClient) {
+          statusText.textContent = "Local only · Google sign-in loading…";
+          signInBtn.disabled = true;
+          signInLabel.textContent = "Loading Google…";
+        } else {
+          statusText.textContent = "Local only · not connected to Google Drive";
+          signInBtn.disabled = false;
+          signInLabel.textContent = "Sign in with Google";
+        }
         return;
       }
 
+      // Connected
       indicator.classList.remove("offline");
       label.textContent = "Connected · Google Drive";
       driveStatusText.textContent =
@@ -1423,187 +1441,98 @@
       syncBtn.disabled = isSyncing;
       syncBtn.textContent = isSyncing ? "Syncing..." : "Sync now";
       signInBtn.disabled = false;
+      signInLabel.textContent = "Sign in with Google";
     }
 
-    /************* INSIGHTS: YEAR + CATEGORY *****************/
-    function getAllYearsFromEntries() {
-      const years = new Set();
-      entries.forEach((e) => {
-        if (!e.date) return;
-        const d = new Date(e.date);
-        if (!Number.isNaN(d.getTime())) {
-          years.add(d.getFullYear());
-        }
-      });
-      // Always include current year so dropdown never looks empty
-      const nowYear = new Date().getFullYear();
-      years.add(nowYear);
-      return Array.from(years).sort((a, b) => a - b);
-    }
+    function renderInsights() {
+      const yearSelect = document.getElementById("insightsYearSelect");
+      const typeSelect = document.getElementById("insightsTypeSelect");
+      const monthLabel = document.getElementById("insightsMonthLabel");
+      const catBody = document.getElementById("insightsCategoryBody");
+      const catEmpty = document.getElementById("insightsCategoryEmpty");
+      if (!yearSelect || !typeSelect) return;
 
-    function renderYearOptions() {
-      const select = document.getElementById("yearSelect");
-      if (!select) return;
-
-      const years = getAllYearsFromEntries();
-      if (!years.length) return;
-
-      if (!years.includes(selectedYear)) {
-        selectedYear = years[years.length - 1];
-      }
-
-      select.innerHTML = "";
+      // Populate year options based on entries
+      const years = getAllYears();
+      const previousValue = yearSelect.value;
+      yearSelect.innerHTML = "";
       years.forEach((y) => {
         const opt = document.createElement("option");
         opt.value = String(y);
         opt.textContent = y;
-        if (y === selectedYear) opt.selected = true;
-        select.appendChild(opt);
+        yearSelect.appendChild(opt);
       });
-    }
+      if (years.includes(Number(previousValue))) {
+        yearSelect.value = previousValue;
+      } else {
+        yearSelect.value = String(years[years.length - 1]);
+      }
 
-    function renderYearSummary() {
-      const year = selectedYear || new Date().getFullYear();
-      const yearEmpty = document.getElementById("yearEmpty");
-      const tbody = document.getElementById("yearMonthBody");
+      const selectedYear = parseInt(yearSelect.value, 10) || years[years.length - 1];
 
-      let incomeTotal = 0;
-      let expenseTotal = 0;
-      let savingTotal = 0;
-      const perMonth = Array.from({ length: 12 }, () => ({
-        income: 0,
-        expense: 0,
-        saving: 0,
-      }));
-
+      // Year totals
+      let incomeY = 0;
+      let expenseY = 0;
+      let savingY = 0;
       entries.forEach((e) => {
         if (!e.date) return;
         const d = new Date(e.date);
         if (Number.isNaN(d.getTime())) return;
-        const y = d.getFullYear();
-        if (y !== year) return;
-        const m = d.getMonth(); // 0-11
+        if (d.getFullYear() !== selectedYear) return;
         const amt = Number(e.amount) || 0;
-
-        if (e.type === "income") {
-          incomeTotal += amt;
-          perMonth[m].income += amt;
-        } else if (e.type === "expense") {
-          expenseTotal += amt;
-          perMonth[m].expense += amt;
-        } else if (e.type === "saving") {
-          savingTotal += amt;
-          perMonth[m].saving += amt;
-        }
+        if (e.type === "income") incomeY += amt;
+        else if (e.type === "expense") expenseY += amt;
+        else if (e.type === "saving") savingY += amt;
       });
 
-      const netTotal = incomeTotal - expenseTotal - savingTotal;
+      document.getElementById("yearIncomeTotal").textContent = formatCurrency(incomeY);
+      document.getElementById("yearExpenseTotal").textContent = formatCurrency(expenseY);
+      document.getElementById("yearSavingTotal").textContent = formatCurrency(savingY);
+      document.getElementById("yearNetTotal").textContent =
+        formatCurrency(incomeY - expenseY - savingY);
 
-      document.getElementById("yearIncomeDisplay").textContent =
-        formatCurrency(incomeTotal);
-      document.getElementById("yearExpenseDisplay").textContent =
-        formatCurrency(expenseTotal);
-      document.getElementById("yearSavingDisplay").textContent =
-        formatCurrency(savingTotal);
-      document.getElementById("yearNetDisplay").textContent =
-        formatCurrency(netTotal);
+      // Category breakdown for currentMonth & selected type
+      monthLabel.textContent =
+        (currentMonth ? monthKeyToLabel(currentMonth) : "No month") +
+        " · " +
+        (typeSelect.value === "expense"
+          ? "Expenses"
+          : typeSelect.value === "income"
+          ? "Income"
+          : "Savings & investments");
 
-      tbody.innerHTML = "";
+      catBody.innerHTML = "";
+      const type = typeSelect.value;
 
-      let anyRows = false;
-      for (let i = 0; i < 12; i++) {
-        const data = perMonth[i];
-        if (!data.income && !data.expense && !data.saving) continue;
-        anyRows = true;
-        const tr = document.createElement("tr");
+      const categoryTotals = {};
+      entries.forEach((e) => {
+        if (e.monthKey !== currentMonth) return;
+        if (e.type !== type) return;
+        const cat = e.category || "General";
+        const amt = Number(e.amount) || 0;
+        categoryTotals[cat] = (categoryTotals[cat] || 0) + amt;
+      });
 
-        const monthName = new Date(year, i, 1).toLocaleString(undefined, {
-          month: "short",
-        });
-
-        const net = data.income - data.expense - data.saving;
-
-        const tdMonth = document.createElement("td");
-        tdMonth.textContent = monthName;
-
-        const tdInc = document.createElement("td");
-        tdInc.style.textAlign = "right";
-        tdInc.textContent = formatCurrency(data.income);
-
-        const tdExp = document.createElement("td");
-        tdExp.style.textAlign = "right";
-        tdExp.textContent = formatCurrency(data.expense);
-
-        const tdSav = document.createElement("td");
-        tdSav.style.textAlign = "right";
-        tdSav.textContent = formatCurrency(data.saving);
-
-        const tdNet = document.createElement("td");
-        tdNet.style.textAlign = "right";
-        tdNet.textContent = formatCurrency(net);
-
-        tr.appendChild(tdMonth);
-        tr.appendChild(tdInc);
-        tr.appendChild(tdExp);
-        tr.appendChild(tdSav);
-        tr.appendChild(tdNet);
-
-        tbody.appendChild(tr);
-      }
-
-      if (!anyRows) {
-        yearEmpty.style.display = "block";
-      } else {
-        yearEmpty.style.display = "none";
-      }
-    }
-
-    function renderCategorySummary() {
-      const label = document.getElementById("categoryMonthLabel");
-      if (label) label.textContent = monthKeyToLabel(currentMonth);
-
-      const tbody = document.getElementById("categoryBody");
-      const empty = document.getElementById("categoryEmpty");
-      if (!tbody || !empty) return;
-
-      const monthEntries = entries.filter(
-        (e) => e.monthKey === currentMonth && e.type === "expense"
+      const categories = Object.keys(categoryTotals).sort(
+        (a, b) => categoryTotals[b] - categoryTotals[a]
       );
 
-      if (!monthEntries.length) {
-        tbody.innerHTML = "";
-        empty.style.display = "block";
-        return;
+      if (!categories.length) {
+        catEmpty.style.display = "block";
+      } else {
+        catEmpty.style.display = "none";
+        categories.forEach((cat) => {
+          const tr = document.createElement("tr");
+          const tdCat = document.createElement("td");
+          tdCat.textContent = cat;
+          const tdAmt = document.createElement("td");
+          tdAmt.className = "amount-cell";
+          tdAmt.textContent = formatCurrency(categoryTotals[cat]);
+          tr.appendChild(tdCat);
+          tr.appendChild(tdAmt);
+          catBody.appendChild(tr);
+        });
       }
-
-      empty.style.display = "none";
-
-      const map = {};
-      monthEntries.forEach((e) => {
-        const cat = e.category || "General";
-        map[cat] = (map[cat] || 0) + (Number(e.amount) || 0);
-      });
-
-      const rows = Object.entries(map).sort((a, b) => b[1] - a[1]);
-
-      tbody.innerHTML = "";
-      rows.forEach(([cat, total]) => {
-        const tr = document.createElement("tr");
-        const tdCat = document.createElement("td");
-        tdCat.textContent = cat;
-        const tdTotal = document.createElement("td");
-        tdTotal.style.textAlign = "right";
-        tdTotal.textContent = formatCurrency(total);
-        tr.appendChild(tdCat);
-        tr.appendChild(tdTotal);
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderInsights() {
-      renderYearOptions();
-      renderYearSummary();
-      renderCategorySummary();
     }
 
     function renderAll() {
@@ -1618,34 +1547,51 @@
      * GOOGLE AUTH & DRIVE
      ************************************************************/
     function initGoogle() {
-      if (!GOOGLE_CLIENT_ID) {
-        console.warn(
-          "Google client ID not configured. Sign in will not work until you add your client ID."
-        );
-        return;
+      const MAX_ATTEMPTS = 20;
+
+      function attemptInit() {
+        googleInitAttempts++;
+        if (googleInitAttempts > MAX_ATTEMPTS) {
+          console.warn("Giving up on Google init after several attempts");
+          return;
+        }
+
+        if (
+          !window.google ||
+          !google.accounts ||
+          !google.accounts.oauth2 ||
+          !window.gapi
+        ) {
+          // Not ready yet – retry shortly (helps on mobile/slow networks)
+          setTimeout(attemptInit, 700);
+          return;
+        }
+
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: GOOGLE_SCOPES,
+          callback: async (tokenResponse) => {
+            if (tokenResponse.error) {
+              console.error(tokenResponse);
+              showToast("Google sign-in failed", true);
+              return;
+            }
+            accessToken = tokenResponse.access_token;
+            gapi.client.setToken({ access_token: accessToken });
+            renderSyncState();
+            showToast("Signed in with Google Drive");
+            await ensureDriveFileAndLoad();
+          },
+        });
+
+        gapi.load("client", () => {
+          console.log("gapi client loaded");
+        });
+
+        renderSyncState();
       }
 
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: GOOGLE_SCOPES,
-        callback: async (tokenResponse) => {
-          if (tokenResponse.error) {
-            console.error(tokenResponse);
-            showToast("Google sign-in failed", true);
-            return;
-          }
-          accessToken = tokenResponse.access_token;
-          gapi.client.setToken({ access_token: accessToken });
-          renderSyncState();
-          showToast("Signed in with Google Drive");
-          await ensureDriveFileAndLoad();
-        },
-      });
-
-      // Load the gapi client
-      gapi.load("client", () => {
-        console.log("gapi client loaded");
-      });
+      attemptInit();
     }
 
     function handleSignIn() {
@@ -1916,8 +1862,6 @@
         now.getMonth() + 1
       ).padStart(2, "0")}`;
 
-      selectedYear = now.getFullYear();
-
       // pre-fill date input with today
       const dateInput = document.getElementById("dateInput");
       dateInput.valueAsDate = now;
@@ -1981,21 +1925,17 @@
         renderAll();
       });
 
-      const yearSelect = document.getElementById("yearSelect");
-      if (yearSelect) {
-        yearSelect.addEventListener("change", () => {
-          const v = parseInt(yearSelect.value, 10);
-          if (!Number.isNaN(v)) {
-            selectedYear = v;
-            renderInsights();
-          }
-        });
-      }
+      document
+        .getElementById("insightsYearSelect")
+        .addEventListener("change", renderInsights);
+      document
+        .getElementById("insightsTypeSelect")
+        .addEventListener("change", renderInsights);
 
       renderAll();
 
-      // delay initGoogle slightly to make sure scripts are loaded
-      setTimeout(initGoogle, 500);
+      // initialise Google sign-in & Drive client (robust for phone)
+      setTimeout(initGoogle, 400);
     }
 
     window.addEventListener("load", init);
