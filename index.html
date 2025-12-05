@@ -960,20 +960,14 @@
             <option value="saving">Saving</option>
           </select>
 
-          <select id="categoryInput">
-            <option value="General">General</option>
-            <option value="Food">Food</option>
-            <option value="Rent">Rent</option>
-            <option value="Transport">Transport</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Bills">Bills</option>
-            <option value="Debt">Debt</option>
-            <option value="Salary">Salary</option>
-            <option value="Side hustle">Side hustle</option>
-            <option value="Investment">Investment</option>
-            <option value="Emergency fund">Emergency fund</option>
-            <option value="Goal saving">Goal saving</option>
-          </select>
+          <!-- Custom category with suggestions -->
+          <input
+            id="categoryInput"
+            type="text"
+            list="categoryList"
+            placeholder="Category (e.g. Food, Rent, Investment)"
+          />
+          <datalist id="categoryList"></datalist>
 
           <input
             id="descriptionInput"
@@ -1153,6 +1147,35 @@
     let driveFileId = null;
     let isSyncing = false;
     let googleInitAttempts = 0;
+
+    // Default category suggestions per type (used to fill the list)
+    const defaultCategoryOptions = {
+      expense: [
+        "Food",
+        "Rent",
+        "Transport",
+        "Shopping",
+        "Bills",
+        "Debt",
+        "Subscriptions",
+        "Health",
+        "Entertainment"
+      ],
+      income: [
+        "Salary",
+        "Side hustle",
+        "Bonus",
+        "Business",
+        "Investment income"
+      ],
+      saving: [
+        "Emergency fund",
+        "Goal saving",
+        "Investment",
+        "Retirement",
+        "Vacation"
+      ],
+    };
 
     /************************************************************
      * UTILITIES
@@ -1535,12 +1558,43 @@
       }
     }
 
+    // Build category suggestions based on type + existing entries
+    function renderCategoryOptions() {
+      const typeInput = document.getElementById("typeInput");
+      const listEl = document.getElementById("categoryList");
+      if (!typeInput || !listEl) return;
+
+      const type = typeInput.value || "expense";
+      listEl.innerHTML = "";
+
+      const seen = new Set();
+
+      function addOption(label) {
+        const key = label.trim().toLowerCase();
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        const opt = document.createElement("option");
+        opt.value = label;
+        listEl.appendChild(opt);
+      }
+
+      // defaults for this type
+      (defaultCategoryOptions[type] || []).forEach(addOption);
+
+      // categories from existing entries of this type
+      entries.forEach((e) => {
+        if (e.type !== type || !e.category) return;
+        addOption(e.category);
+      });
+    }
+
     function renderAll() {
       renderMonthLabel();
       renderEntries();
       renderOverview();
       renderSyncState();
       renderInsights();
+      renderCategoryOptions();
     }
 
     /************************************************************
@@ -1931,6 +1985,11 @@
       document
         .getElementById("insightsTypeSelect")
         .addEventListener("change", renderInsights);
+
+      // update category suggestions when type changes
+      document
+        .getElementById("typeInput")
+        .addEventListener("change", renderCategoryOptions);
 
       renderAll();
 
