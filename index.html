@@ -12,18 +12,18 @@
   <style>
     :root {
       --bg: #020617;
-      --bg-elevated: #020617;
-      --card: #0f172a;
-      --card-soft: #020617;
+      --bg-elevated: rgba(2, 6, 23, 0.92);
+      --card: rgba(15, 23, 42, 0.9);
+      --card-soft: rgba(2, 6, 23, 0.7);
       --accent: #6366f1;
       --accent-soft: rgba(99, 102, 241, 0.25);
       --accent-strong: rgba(99, 102, 241, 0.35);
       --text: #e5e7eb;
-      --muted: #9ca3af;
+      --muted: #94a3b8;
       --danger: #f97373;
       --success: #22c55e;
-      --border-subtle: rgba(148, 163, 184, 0.25);
-      --shadow-soft: 0 30px 80px rgba(15, 23, 42, 0.85);
+      --border-subtle: rgba(148, 163, 184, 0.22);
+      --shadow-soft: 0 35px 90px rgba(2, 6, 23, 0.9);
       --radius-lg: 18px;
       --radius-xl: 22px;
       --radius-pill: 999px;
@@ -35,24 +35,30 @@
         "Segoe UI", sans-serif;
     }
 
+    html {
+      font-size: 16px;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at top, #0b1120, #020617 55%);
+      background:
+        radial-gradient(circle at 8% 15%, rgba(99, 102, 241, 0.2), transparent 45%),
+        radial-gradient(circle at 85% 0%, rgba(14, 165, 233, 0.12), transparent 40%),
+        radial-gradient(circle at 40% 90%, rgba(34, 197, 94, 0.12), transparent 45%),
+        #020617;
       color: var(--text);
-      display: flex;
-      justify-content: center;
       padding: 32px 16px 40px;
     }
 
     .app-shell {
-      width: 100%;
-      max-width: 1040px;
-      background: radial-gradient(circle at top left, #020617, #020617 45%, #020617);
+      width: min(100%, 1200px);
+      margin: 0 auto;
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
       border-radius: 30px;
-      border: 1px solid rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.12);
       box-shadow: var(--shadow-soft);
-      padding: 26px 26px 28px;
+      padding: 30px 30px 32px;
       position: relative;
       overflow: hidden;
     }
@@ -73,20 +79,27 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 18px;
-      gap: 16px;
+      margin-bottom: 20px;
+      gap: 18px;
+      padding: 18px 18px 16px;
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(6px);
     }
 
     .title-block h1 {
       margin: 0;
-      font-size: 1.65rem;
+      font-size: 1.75rem;
       letter-spacing: 0.03em;
     }
 
     .title-block p {
       margin: 6px 0 0;
-      font-size: 0.83rem;
+      font-size: 0.85rem;
       color: var(--muted);
+      max-width: 420px;
     }
 
     .pill {
@@ -101,6 +114,95 @@
       color: var(--muted);
     }
 
+    .sync-panel {
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(2, 6, 23, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sync-panel-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sync-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .sync-meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .autosync-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 999px;
+      padding: 3px 8px 3px 5px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.35);
+      transition: background 0.2s ease;
+    }
+
+    .toggle-track::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+    }
+
+    .toggle input:checked + .toggle-track::after {
+      transform: translateX(14px);
+    }
+
+    .toggle-label {
+      font-weight: 500;
+      color: var(--text);
+    }
+
     .pill-dot {
       width: 7px;
       height: 7px;
@@ -112,8 +214,9 @@
     .top-actions {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
+      align-items: stretch;
+      gap: 12px;
+      min-width: 300px;
     }
 
     .primary-btn {
@@ -177,6 +280,11 @@
       gap: 6px;
     }
 
+    .status-line strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
     .status-dot {
       width: 7px;
       height: 7px;
@@ -215,7 +323,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: radial-gradient(circle at top left, #020617, #020617 60%, #020617);
+      background: rgba(2, 6, 23, 0.7);
       padding: 6px 10px 6px 12px;
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.35);
@@ -274,7 +382,7 @@
     }
 
     .card {
-      background: radial-gradient(circle at top left, #020617, #020617 60%, #020617);
+      background: var(--card);
       border-radius: var(--radius-xl);
       border: 1px solid rgba(148, 163, 184, 0.2);
       padding: 14px 16px 16px;
@@ -316,19 +424,19 @@
       position: relative;
       overflow: hidden;
       border: 1px solid rgba(148, 163, 184, 0.18);
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), #020617 55%);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(2, 6, 23, 0.9) 55%);
     }
 
     .overview-card.expenses {
-      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.18), #020617 55%);
+      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.18), rgba(2, 6, 23, 0.9) 55%);
     }
 
     .overview-card.savings {
-      background: radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), #020617 55%);
+      background: radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), rgba(2, 6, 23, 0.9) 55%);
     }
 
     .overview-card.net {
-      background: radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.2), #020617 50%);
+      background: radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.2), rgba(2, 6, 23, 0.9) 50%);
     }
 
     .overview-label {
@@ -403,7 +511,7 @@
       width: 100%;
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(2, 6, 23, 0.9);
       color: var(--text);
       font-size: 0.78rem;
       padding: 6px 11px;
@@ -498,11 +606,11 @@
     }
 
     .entries-table tbody tr:nth-child(odd) {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(2, 6, 23, 0.75);
     }
 
     .entries-table tbody tr:nth-child(even) {
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.75);
     }
 
     .entries-table tbody tr td:first-child,
@@ -581,7 +689,7 @@
       padding: 26px 12px 24px;
       border-radius: 16px;
       border: 1px dashed rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(2, 6, 23, 0.75);
     }
 
     .empty-state strong {
@@ -627,6 +735,11 @@
       gap: 6px;
     }
 
+    .sync-meta-text {
+      color: var(--text);
+      font-weight: 600;
+    }
+
     .sync-badge {
       padding: 1px 7px;
       border-radius: 999px;
@@ -661,7 +774,7 @@
       border-radius: 16px;
       padding: 10px 10px 12px;
       border: 1px solid rgba(148, 163, 184, 0.25);
-      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), #020617);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
       min-height: 150px;
     }
 
@@ -796,7 +909,8 @@
       }
 
       .top-actions {
-        align-items: flex-start;
+        align-items: stretch;
+        width: 100%;
       }
 
       .grid-main {
@@ -830,28 +944,47 @@
       <div class="title-block">
         <h1>Monthly Expense Tracker</h1>
         <p>
-          Track income, expenses &amp; savings with local autosave and optional
-          Google Drive backup.
+          Track income, expenses &amp; savings with local autosave plus Google Drive
+          autosync for every entry.
         </p>
       </div>
       <div class="top-actions">
-        <div id="driveStatusPill" class="pill">
-          <span class="pill-dot" id="pillDot"></span>
-          <span id="driveStatusText">Data stays on this device until you connect Google Drive</span>
-        </div>
+        <div class="sync-panel">
+          <div class="sync-panel-top">
+            <div id="driveStatusPill" class="pill">
+              <span class="pill-dot" id="pillDot"></span>
+              <span id="driveStatusText">Data stays on this device until you connect Google Drive</span>
+            </div>
+            <div class="autosync-toggle">
+              <label class="toggle">
+                <input type="checkbox" id="autoSyncToggle" checked />
+                <span class="toggle-track"></span>
+              </label>
+              <span class="toggle-label">Autosync every entry</span>
+            </div>
+          </div>
 
-        <button id="googleSignInBtn" class="primary-btn" type="button">
-          <span id="googleSignInLabel">Loading Google…</span>
-        </button>
+          <div class="sync-actions">
+            <button id="googleSignInBtn" class="primary-btn" type="button">
+              <span id="googleSignInLabel">Loading Google…</span>
+            </button>
 
-        <button id="syncNowBtn" class="btn-ghost" type="button" disabled>
-          <span>Sync now</span>
-          <span style="font-size: 0.8em;">⟳</span>
-        </button>
+            <button id="syncNowBtn" class="btn-ghost" type="button" disabled>
+              <span>Sync now</span>
+              <span style="font-size: 0.8em;">⟳</span>
+            </button>
+          </div>
 
-        <div class="status-line">
-          <span class="status-dot offline" id="localStatusDot"></span>
-          <span id="statusText">Local only · Google sign-in loading…</span>
+          <div class="sync-meta-row">
+            <div class="status-line">
+              <span class="status-dot offline" id="localStatusDot"></span>
+              <span id="statusText">Local only · Google sign-in loading…</span>
+            </div>
+            <div class="status-line">
+              <span>Last sync:</span>
+              <strong id="lastSyncLabel">Never</strong>
+            </div>
+          </div>
         </div>
 
         <div class="status-line">
@@ -984,7 +1117,7 @@
 
         <div class="helper-text">
           <span class="helper-dot"></span>
-          <span>Local autosave is always on. When you connect Google Drive, your data is backed up to a private file.</span>
+          <span>Local autosave is always on. Connect Google Drive to autosync every entry to a private backup file.</span>
           <span class="badge">Private • only you</span>
         </div>
       </section>
@@ -1045,6 +1178,7 @@
             <span id="syncIndicator" class="sync-indicator offline"></span>
             <span>Sync</span>
             <span id="syncStatusLabel" class="sync-badge">Local only</span>
+            <span id="syncMetaText" class="sync-meta-text">Autosync off</span>
           </div>
         </div>
       </section>
@@ -1141,6 +1275,10 @@
     let budgets = {};            // monthKey -> budget number
     let currencySymbol = "$";    // display symbol
     let currentMonth = null;     // YYYY-MM
+    let autoSyncEnabled = true;
+    let lastSyncAt = null;
+    let autoSyncTimer = null;
+    let pendingAutoSync = false;
 
     let tokenClient = null;
     let accessToken = null;
@@ -1204,6 +1342,18 @@
       return d.toLocaleString(undefined, { month: "long", year: "numeric" });
     }
 
+    function formatSyncTime(timestamp) {
+      if (!timestamp) return "Never";
+      const d = new Date(timestamp);
+      if (Number.isNaN(d.getTime())) return "Never";
+      return d.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
     function showToast(message, isError = false) {
       const toast = document.getElementById("toast");
       const msgEl = document.getElementById("toastMessage");
@@ -1220,6 +1370,8 @@
         recurringRules,
         budgets,
         currencySymbol,
+        autoSyncEnabled,
+        lastSyncAt,
         lastUpdated: Date.now(),
       };
       try {
@@ -1240,6 +1392,9 @@
         if (data.budgets && typeof data.budgets === "object")
           budgets = data.budgets;
         if (data.currencySymbol) currencySymbol = data.currencySymbol;
+        if (typeof data.autoSyncEnabled === "boolean")
+          autoSyncEnabled = data.autoSyncEnabled;
+        if (typeof data.lastSyncAt === "number") lastSyncAt = data.lastSyncAt;
       } catch (e) {
         console.error("Failed to load from localStorage", e);
       }
@@ -1328,6 +1483,7 @@
           delBtn.addEventListener("click", () => {
             entries = entries.filter((e) => e.id !== entry.id);
             saveToLocal();
+            scheduleAutoSync("entry-deleted");
             renderAll();
           });
           actionsCell.appendChild(delBtn);
@@ -1429,9 +1585,23 @@
       const driveStatusText = document.getElementById("driveStatusText");
       const pillDot = document.getElementById("pillDot");
       const statusText = document.getElementById("statusText");
+      const localDot = document.getElementById("localStatusDot");
       const syncBtn = document.getElementById("syncNowBtn");
       const signInBtn = document.getElementById("googleSignInBtn");
       const signInLabel = document.getElementById("googleSignInLabel");
+      const autoSyncToggle = document.getElementById("autoSyncToggle");
+      const lastSyncLabel = document.getElementById("lastSyncLabel");
+      const syncMetaText = document.getElementById("syncMetaText");
+
+      if (autoSyncToggle) {
+        autoSyncToggle.checked = autoSyncEnabled;
+      }
+      if (lastSyncLabel) {
+        lastSyncLabel.textContent = formatSyncTime(lastSyncAt);
+      }
+      if (syncMetaText) {
+        syncMetaText.textContent = autoSyncEnabled ? "Autosync on" : "Autosync off";
+      }
 
       if (!accessToken) {
         indicator.classList.add("offline");
@@ -1439,6 +1609,9 @@
         driveStatusText.textContent =
           "Data stays on this device until you connect Google Drive";
         pillDot.style.background = "#22c55e";
+        if (localDot) {
+          localDot.classList.add("offline");
+        }
         syncBtn.disabled = true;
         syncBtn.textContent = "Sync now";
 
@@ -1457,10 +1630,16 @@
       // Connected
       indicator.classList.remove("offline");
       label.textContent = "Connected · Google Drive";
-      driveStatusText.textContent =
-        "Connected to Google Drive · your data is backed up to a private file";
+      driveStatusText.textContent = autoSyncEnabled
+        ? "Connected to Google Drive · autosyncing to a private file"
+        : "Connected to Google Drive · autosync paused (manual sync only)";
       pillDot.style.background = "#22c55e";
-      statusText.textContent = "Connected · syncing is available";
+      if (localDot) {
+        localDot.classList.remove("offline");
+      }
+      statusText.textContent = autoSyncEnabled
+        ? "Connected · autosyncing entries"
+        : "Connected · autosync paused";
       syncBtn.disabled = isSyncing;
       syncBtn.textContent = isSyncing ? "Syncing..." : "Sync now";
       signInBtn.disabled = false;
@@ -1689,11 +1868,16 @@
           if (data.budgets && typeof data.budgets === "object")
             budgets = data.budgets;
           if (data.currencySymbol) currencySymbol = data.currencySymbol;
+          if (typeof data.autoSyncEnabled === "boolean")
+            autoSyncEnabled = data.autoSyncEnabled;
+          if (typeof data.lastSyncAt === "number") lastSyncAt = data.lastSyncAt;
           saveToLocal(); // keep local in sync
         } else {
           // create new file with current local data
           await createOrUpdateDriveFile(true);
         }
+        lastSyncAt = Date.now();
+        saveToLocal();
         renderAll();
         showToast("Synced from Google Drive");
       } catch (e) {
@@ -1718,6 +1902,8 @@
           recurringRules,
           budgets,
           currencySymbol,
+          autoSyncEnabled,
+          lastSyncAt,
           lastUpdated: Date.now(),
         },
         null,
@@ -1752,9 +1938,24 @@
       driveFileId = response.result.id;
     }
 
-    async function syncToDrive() {
+    function scheduleAutoSync(reason = "auto") {
+      if (!accessToken || !autoSyncEnabled) return;
+      if (autoSyncTimer) clearTimeout(autoSyncTimer);
+      autoSyncTimer = setTimeout(async () => {
+        autoSyncTimer = null;
+        if (isSyncing) {
+          pendingAutoSync = true;
+          return;
+        }
+        await syncToDrive({ silent: true, reason });
+      }, 1200);
+    }
+
+    async function syncToDrive({ silent = false } = {}) {
       if (!accessToken) {
-        showToast("Connect Google Drive first", true);
+        if (!silent) {
+          showToast("Connect Google Drive first", true);
+        }
         return;
       }
 
@@ -1764,13 +1965,23 @@
 
       try {
         await createOrUpdateDriveFile(false);
-        showToast("Data synced to Google Drive");
+        lastSyncAt = Date.now();
+        saveToLocal();
+        if (!silent) {
+          showToast("Data synced to Google Drive");
+        }
       } catch (e) {
         console.error("Sync failed", e);
-        showToast("Drive sync failed", true);
+        if (!silent) {
+          showToast("Drive sync failed", true);
+        }
       } finally {
         isSyncing = false;
         renderSyncState();
+        if (pendingAutoSync) {
+          pendingAutoSync = false;
+          scheduleAutoSync("pending");
+        }
       }
     }
 
@@ -1820,6 +2031,7 @@
 
       entries.push(entry);
       saveToLocal();
+      scheduleAutoSync("entry-added");
 
       // set current month to entry's month if different
       currentMonth = monthKey;
@@ -1855,6 +2067,8 @@
           recurringRules,
           budgets,
           currencySymbol,
+          autoSyncEnabled,
+          lastSyncAt,
           exportedAt: new Date().toISOString(),
         },
         null,
@@ -1890,7 +2104,14 @@
               ? data.budgets
               : {};
           currencySymbol = data.currencySymbol || "$";
+          if (typeof data.autoSyncEnabled === "boolean") {
+            autoSyncEnabled = data.autoSyncEnabled;
+          }
+          if (typeof data.lastSyncAt === "number") {
+            lastSyncAt = data.lastSyncAt;
+          }
           saveToLocal();
+          scheduleAutoSync("import");
           // update currency selector
           const curSel = document.getElementById("currencySelect");
           if (curSel) curSel.value = currencySymbol;
@@ -1927,7 +2148,25 @@
         curSel.addEventListener("change", () => {
           currencySymbol = curSel.value || "$";
           saveToLocal();
+          scheduleAutoSync("currency-updated");
           renderAll();
+        });
+      }
+
+      const autoSyncToggle = document.getElementById("autoSyncToggle");
+      if (autoSyncToggle) {
+        autoSyncToggle.checked = autoSyncEnabled;
+        autoSyncToggle.addEventListener("change", () => {
+          autoSyncEnabled = autoSyncToggle.checked;
+          if (!autoSyncEnabled && autoSyncTimer) {
+            clearTimeout(autoSyncTimer);
+            autoSyncTimer = null;
+          }
+          saveToLocal();
+          renderSyncState();
+          if (autoSyncEnabled) {
+            scheduleAutoSync("autosync-enabled");
+          }
         });
       }
 
@@ -1946,7 +2185,7 @@
         .addEventListener("click", handleSignIn);
       document
         .getElementById("syncNowBtn")
-        .addEventListener("click", syncToDrive);
+        .addEventListener("click", () => syncToDrive({ silent: false }));
       document
         .getElementById("exportBtn")
         .addEventListener("click", handleExport);
@@ -1976,6 +2215,7 @@
           budgets[currentMonth] = v;
         }
         saveToLocal();
+        scheduleAutoSync("budget-updated");
         renderAll();
       });
 
