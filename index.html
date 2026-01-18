@@ -175,6 +175,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     .status-dot {
@@ -200,6 +201,25 @@
 
     .currency-select:focus {
       border-color: rgba(129, 140, 248, 0.9);
+    }
+
+    /* NEW: Toggle */
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--muted);
+      font-size: 0.72rem;
+      user-select: none;
+    }
+
+    .toggle input {
+      accent-color: #6366f1;
+      transform: translateY(1px);
     }
 
     /* Month selector */
@@ -354,6 +374,35 @@
       background: rgba(15, 23, 42, 0.9);
     }
 
+    /* NEW: Analytics mini cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 10px 0 6px;
+    }
+
+    .kpi-card {
+      border-radius: 16px;
+      padding: 10px 12px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), #020617 60%);
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .kpi-value {
+      margin-top: 5px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
     /* Budget row */
     .budget-row {
       margin: 8px 0 10px;
@@ -387,6 +436,105 @@
     .budget-status {
       font-size: 0.72rem;
       color: var(--muted);
+    }
+
+    /* NEW: Category budgets */
+    .cat-budget {
+      margin: 10px 0 12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .cat-budget-title {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin: 0 0 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .cat-budget-form {
+      display: grid;
+      grid-template-columns: 1fr 0.7fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .cat-budget-form input {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.78rem;
+      padding: 6px 11px;
+      outline: none;
+    }
+
+    .cat-budget-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .cat-budget-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(2, 6, 23, 0.45);
+    }
+
+    .cat-budget-left {
+      min-width: 0;
+    }
+
+    .cat-budget-name {
+      font-size: 0.78rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-budget-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .cat-budget-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .cat-budget-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.85);
+    }
+
+    .cat-budget-pill.warn {
+      border-color: rgba(250, 204, 21, 0.9);
+      color: #fde68a;
+    }
+
+    .cat-budget-pill.bad {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
     }
 
     /* Entry form */
@@ -812,7 +960,15 @@
         justify-self: stretch;
       }
 
+      .kpi-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
       .insights-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .cat-budget-form {
         grid-template-columns: minmax(0, 1fr);
       }
     }
@@ -848,6 +1004,12 @@
           <span>Sync now</span>
           <span style="font-size: 0.8em;">⟳</span>
         </button>
+
+        <!-- NEW: Auto-sync toggle -->
+        <label class="toggle" title="When enabled, changes sync to Drive automatically after edits">
+          <input id="autoSyncToggle" type="checkbox" />
+          <span>Auto-sync</span>
+        </label>
 
         <div class="status-line">
           <span class="status-dot offline" id="localStatusDot"></span>
@@ -931,6 +1093,31 @@
           </div>
         </div>
 
+        <!-- NEW: KPI analytics -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">
+              <span>Cashflow</span>
+              <span class="chip" id="cashflowChip">—</span>
+            </div>
+            <div class="kpi-value" id="cashflowValue">$0.00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">
+              <span>Savings rate</span>
+              <span class="chip" id="savingsRateChip">—</span>
+            </div>
+            <div class="kpi-value" id="savingsRateValue">0.0%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">
+              <span>Avg daily spend</span>
+              <span class="chip" id="avgDailyChip">—</span>
+            </div>
+            <div class="kpi-value" id="avgDailyValue">$0.00</div>
+          </div>
+        </div>
+
         <!-- Budget -->
         <div class="budget-row">
           <label for="budgetInput" class="budget-label">Monthly expense budget</label>
@@ -944,6 +1131,22 @@
             />
             <span id="budgetStatus" class="budget-status">No budget set</span>
           </div>
+        </div>
+
+        <!-- NEW: Category budgets -->
+        <div class="cat-budget">
+          <div class="cat-budget-title">
+            <span>Category budgets (expenses)</span>
+            <span class="chip" id="catBudgetSummaryChip">0 set</span>
+          </div>
+
+          <div class="cat-budget-form">
+            <input id="catBudgetCategory" type="text" placeholder="Category (e.g. Food)" />
+            <input id="catBudgetAmount" type="number" step="0.01" placeholder="Budget" />
+            <button id="addCatBudgetBtn" type="button" class="btn-sm">Set</button>
+          </div>
+
+          <div id="catBudgetList" class="cat-budget-list"></div>
         </div>
 
         <div class="card-header" style="margin-top: 4px;">
@@ -1027,6 +1230,12 @@
             <button id="exportBtn" class="btn-outline" type="button">
               <span>Export backup</span>
             </button>
+
+            <!-- NEW: CSV export -->
+            <button id="exportCsvBtn" class="btn-outline" type="button">
+              <span>Export CSV</span>
+            </button>
+
             <button id="importBtn" class="btn-outline" type="button">
               <span>Import backup</span>
               <input
@@ -1142,11 +1351,21 @@
     let currencySymbol = "$";    // display symbol
     let currentMonth = null;     // YYYY-MM
 
+    // NEW: Category budgets per month (expenses only): monthKey -> { categoryName: number }
+    let categoryBudgets = {};
+
+    // NEW: Auto-sync toggle state
+    let autoSyncEnabled = true;
+
     let tokenClient = null;
     let accessToken = null;
     let driveFileId = null;
     let isSyncing = false;
     let googleInitAttempts = 0;
+
+    // NEW: Auto-sync status
+    let lastSyncAt = null;
+    let lastSyncError = null;
 
     // Default category suggestions per type (used to fill the list)
     const defaultCategoryOptions = {
@@ -1220,6 +1439,9 @@
         recurringRules,
         budgets,
         currencySymbol,
+        // NEW
+        categoryBudgets,
+        autoSyncEnabled,
         lastUpdated: Date.now(),
       };
       try {
@@ -1240,6 +1462,12 @@
         if (data.budgets && typeof data.budgets === "object")
           budgets = data.budgets;
         if (data.currencySymbol) currencySymbol = data.currencySymbol;
+
+        // NEW
+        if (data.categoryBudgets && typeof data.categoryBudgets === "object")
+          categoryBudgets = data.categoryBudgets;
+        if (typeof data.autoSyncEnabled === "boolean")
+          autoSyncEnabled = data.autoSyncEnabled;
       } catch (e) {
         console.error("Failed to load from localStorage", e);
       }
@@ -1258,6 +1486,91 @@
         years.add(new Date().getFullYear());
       }
       return Array.from(years).sort((a, b) => a - b);
+    }
+
+    // NEW: month days
+    function getDaysInMonth(monthKey) {
+      if (!monthKey) return 30;
+      const [y, m] = monthKey.split("-");
+      const year = Number(y);
+      const month = Number(m);
+      if (!year || !month) return 30;
+      return new Date(year, month, 0).getDate();
+    }
+
+    // NEW: Safe percent formatting
+    function formatPercent(v) {
+      if (!isFinite(v)) return "0.0%";
+      return (v * 100).toFixed(1) + "%";
+    }
+
+    /************************************************************
+     * AUTO-SYNC (additive, non-breaking)
+     ************************************************************/
+    let __autoSyncTimer = null;
+    let __lastSyncedHash = "";
+
+    function __stableStringify(obj) {
+      const seen = new WeakSet();
+      return JSON.stringify(obj, function (key, value) {
+        if (value && typeof value === "object") {
+          if (seen.has(value)) return;
+          seen.add(value);
+          if (!Array.isArray(value)) {
+            return Object.keys(value).sort().reduce((acc, k) => (acc[k] = value[k], acc), {});
+          }
+        }
+        return value;
+      });
+    }
+
+    function __hashString(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return String(h >>> 0);
+    }
+
+    function __getSyncStateSnapshot() {
+      // Use the same payload you store/sync
+      return {
+        entries,
+        recurringRules,
+        budgets,
+        currencySymbol,
+        categoryBudgets,
+        autoSyncEnabled
+      };
+    }
+
+    function scheduleAutoSync(reason = "change") {
+      // Never block UI; never crack app if Drive not connected
+      if (!autoSyncEnabled) return;
+      if (!accessToken) return;
+      if (typeof syncToDrive !== "function") return;
+
+      if (__autoSyncTimer) clearTimeout(__autoSyncTimer);
+
+      __autoSyncTimer = setTimeout(async () => {
+        try {
+          const snapshot = __getSyncStateSnapshot();
+          const currentHash = __hashString(__stableStringify(snapshot));
+
+          if (currentHash === __lastSyncedHash) return;
+          lastSyncError = null;
+          await syncToDrive(); // uses your existing tested function
+          __lastSyncedHash = currentHash;
+          lastSyncAt = Date.now();
+          lastSyncError = null;
+          renderSyncState(); // refresh status badge text
+        } catch (e) {
+          lastSyncError = e ? String(e.message || e) : "Unknown sync error";
+          renderSyncState();
+          // Silent: show toast only if you want. Keeping minimal.
+        }
+      }, 700);
     }
 
     /************************************************************
@@ -1329,6 +1642,7 @@
             entries = entries.filter((e) => e.id !== entry.id);
             saveToLocal();
             renderAll();
+            scheduleAutoSync("delete-entry"); // NEW
           });
           actionsCell.appendChild(delBtn);
           tr.appendChild(actionsCell);
@@ -1360,6 +1674,88 @@
       }
     }
 
+    // NEW: render category budgets list
+    function renderCategoryBudgets(monthExpenseTotalsByCategory) {
+      const list = document.getElementById("catBudgetList");
+      const chip = document.getElementById("catBudgetSummaryChip");
+      if (!list || !chip) return;
+
+      const monthMap = categoryBudgets[currentMonth] && typeof categoryBudgets[currentMonth] === "object"
+        ? categoryBudgets[currentMonth]
+        : {};
+
+      const cats = Object.keys(monthMap).sort((a, b) => a.localeCompare(b));
+      chip.textContent = `${cats.length} set`;
+      list.innerHTML = "";
+
+      if (!cats.length) {
+        const empty = document.createElement("div");
+        empty.className = "insights-empty";
+        empty.style.marginTop = "0";
+        empty.textContent = "No category budgets set for this month.";
+        list.appendChild(empty);
+        return;
+      }
+
+      cats.forEach((cat) => {
+        const budget = Number(monthMap[cat]) || 0;
+        const used = Number(monthExpenseTotalsByCategory[cat]) || 0;
+        const pct = budget > 0 ? (used / budget) : 0;
+        const remaining = budget - used;
+
+        const row = document.createElement("div");
+        row.className = "cat-budget-item";
+
+        const left = document.createElement("div");
+        left.className = "cat-budget-left";
+
+        const name = document.createElement("div");
+        name.className = "cat-budget-name";
+        name.textContent = cat;
+
+        const sub = document.createElement("div");
+        sub.className = "cat-budget-sub";
+        sub.textContent = `Used: ${formatCurrency(used)} / ${formatCurrency(budget)} · Remaining: ${formatCurrency(remaining)}`;
+
+        left.appendChild(name);
+        left.appendChild(sub);
+
+        const right = document.createElement("div");
+        right.className = "cat-budget-right";
+
+        const pill = document.createElement("span");
+        pill.className = "cat-budget-pill";
+        pill.textContent = budget > 0 ? `${Math.round(pct * 100)}%` : "—";
+
+        if (budget > 0 && pct >= 0.8 && pct <= 1) pill.classList.add("warn");
+        if (budget > 0 && pct > 1) pill.classList.add("bad");
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "btn-icon";
+        del.title = "Remove category budget";
+        del.textContent = "×";
+        del.addEventListener("click", () => {
+          if (!categoryBudgets[currentMonth]) categoryBudgets[currentMonth] = {};
+          delete categoryBudgets[currentMonth][cat];
+          // clean empty
+          if (Object.keys(categoryBudgets[currentMonth]).length === 0) {
+            delete categoryBudgets[currentMonth];
+          }
+          saveToLocal();
+          renderAll();
+          scheduleAutoSync("delete-cat-budget");
+        });
+
+        right.appendChild(pill);
+        right.appendChild(del);
+
+        row.appendChild(left);
+        row.appendChild(right);
+        list.appendChild(row);
+      });
+    }
+
     function renderOverview() {
       const monthEntries = entries.filter((e) => e.monthKey === currentMonth);
 
@@ -1370,6 +1766,9 @@
       let expenseCount = 0;
       let savingCount = 0;
 
+      // NEW: expense totals by category for this month
+      const expenseByCategory = {};
+
       monthEntries.forEach((e) => {
         const amt = Number(e.amount) || 0;
         if (e.type === "income") {
@@ -1378,6 +1777,8 @@
         } else if (e.type === "expense") {
           expenseTotal += amt;
           expenseCount++;
+          const cat = (e.category || "General").trim() || "General";
+          expenseByCategory[cat] = (expenseByCategory[cat] || 0) + amt;
         } else if (e.type === "saving") {
           savingTotal += amt;
           savingCount++;
@@ -1420,7 +1821,36 @@
         netBadge.style.color = "var(--muted)";
       }
 
+      // NEW: KPI analytics
+      const cashflow = incomeTotal - expenseTotal;
+      const days = getDaysInMonth(currentMonth);
+      const avgDaily = days > 0 ? (expenseTotal / days) : expenseTotal;
+      const savingsRate = incomeTotal > 0 ? (net / incomeTotal) : 0;
+
+      const cashflowChip = document.getElementById("cashflowChip");
+      const cashflowValue = document.getElementById("cashflowValue");
+      const savingsRateChip = document.getElementById("savingsRateChip");
+      const savingsRateValue = document.getElementById("savingsRateValue");
+      const avgDailyChip = document.getElementById("avgDailyChip");
+      const avgDailyValue = document.getElementById("avgDailyValue");
+
+      if (cashflowChip && cashflowValue) {
+        cashflowChip.textContent = cashflow >= 0 ? "In" : "Out";
+        cashflowValue.textContent = formatCurrency(cashflow);
+      }
+      if (savingsRateChip && savingsRateValue) {
+        savingsRateChip.textContent = incomeTotal > 0 ? "Net/Income" : "No income";
+        savingsRateValue.textContent = formatPercent(savingsRate);
+      }
+      if (avgDailyChip && avgDailyValue) {
+        avgDailyChip.textContent = `${days} days`;
+        avgDailyValue.textContent = formatCurrency(avgDaily);
+      }
+
       updateBudgetUI(expenseTotal);
+
+      // NEW: category budgets
+      renderCategoryBudgets(expenseByCategory);
     }
 
     function renderSyncState() {
@@ -1432,6 +1862,12 @@
       const syncBtn = document.getElementById("syncNowBtn");
       const signInBtn = document.getElementById("googleSignInBtn");
       const signInLabel = document.getElementById("googleSignInLabel");
+      const autoToggle = document.getElementById("autoSyncToggle");
+
+      if (autoToggle) {
+        autoToggle.checked = !!autoSyncEnabled;
+        autoToggle.disabled = !accessToken; // only meaningful when connected
+      }
 
       if (!accessToken) {
         indicator.classList.add("offline");
@@ -1456,11 +1892,25 @@
 
       // Connected
       indicator.classList.remove("offline");
-      label.textContent = "Connected · Google Drive";
+
+      // NEW: more informative label
+      if (isSyncing) {
+        label.textContent = "Syncing…";
+      } else if (lastSyncError) {
+        label.textContent = "Sync error";
+      } else if (lastSyncAt) {
+        const dt = new Date(lastSyncAt);
+        label.textContent = `Synced ${dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+      } else {
+        label.textContent = "Connected · Google Drive";
+      }
+
       driveStatusText.textContent =
         "Connected to Google Drive · your data is backed up to a private file";
       pillDot.style.background = "#22c55e";
-      statusText.textContent = "Connected · syncing is available";
+      statusText.textContent = autoSyncEnabled
+        ? "Connected · auto-sync enabled"
+        : "Connected · syncing is available";
       syncBtn.disabled = isSyncing;
       syncBtn.textContent = isSyncing ? "Syncing..." : "Sync now";
       signInBtn.disabled = false;
@@ -1689,6 +2139,13 @@
           if (data.budgets && typeof data.budgets === "object")
             budgets = data.budgets;
           if (data.currencySymbol) currencySymbol = data.currencySymbol;
+
+          // NEW
+          if (data.categoryBudgets && typeof data.categoryBudgets === "object")
+            categoryBudgets = data.categoryBudgets;
+          if (typeof data.autoSyncEnabled === "boolean")
+            autoSyncEnabled = data.autoSyncEnabled;
+
           saveToLocal(); // keep local in sync
         } else {
           // create new file with current local data
@@ -1718,6 +2175,9 @@
           recurringRules,
           budgets,
           currencySymbol,
+          // NEW
+          categoryBudgets,
+          autoSyncEnabled,
           lastUpdated: Date.now(),
         },
         null,
@@ -1764,9 +2224,12 @@
 
       try {
         await createOrUpdateDriveFile(false);
+        lastSyncAt = Date.now();        // NEW
+        lastSyncError = null;           // NEW
         showToast("Data synced to Google Drive");
       } catch (e) {
         console.error("Sync failed", e);
+        lastSyncError = e ? String(e.message || e) : "Unknown sync error"; // NEW
         showToast("Drive sync failed", true);
       } finally {
         isSyncing = false;
@@ -1825,6 +2288,9 @@
       currentMonth = monthKey;
       renderAll();
 
+      // NEW: autosync after entry
+      scheduleAutoSync("add-entry");
+
       // Clear description and amount, keep date/type/category
       descriptionInput.value = "";
       amountInput.value = "";
@@ -1846,6 +2312,7 @@
 
       currentMonth = `${year}-${String(month).padStart(2, "0")}`;
       renderAll();
+      // Optional: do not autosync on month change (no state change)
     }
 
     function handleExport() {
@@ -1855,6 +2322,9 @@
           recurringRules,
           budgets,
           currencySymbol,
+          // NEW
+          categoryBudgets,
+          autoSyncEnabled,
           exportedAt: new Date().toISOString(),
         },
         null,
@@ -1870,6 +2340,45 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       showToast("Backup file exported");
+    }
+
+    // NEW: CSV export (all entries)
+    function handleExportCsv() {
+      const headers = ["id","date","monthKey","type","category","description","amount","currency"];
+      const rows = [headers.join(",")];
+
+      entries
+        .slice()
+        .sort((a,b) => new Date(a.date) - new Date(b.date))
+        .forEach((e) => {
+          const row = [
+            e.id || "",
+            e.date || "",
+            e.monthKey || "",
+            e.type || "",
+            (e.category || "").replaceAll('"','""'),
+            (e.description || "").replaceAll('"','""'),
+            String(Number(e.amount) || 0),
+            currencySymbol || "$"
+          ].map((v, idx) => {
+            // quote category/description safely
+            if (idx === 4 || idx === 5) return `"${v}"`;
+            return `${v}`.includes(",") ? `"${v}"` : `${v}`;
+          });
+          rows.push(row.join(","));
+        });
+
+      const csv = rows.join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "expense-tracker.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("CSV exported");
     }
 
     function handleImport(file) {
@@ -1890,18 +2399,65 @@
               ? data.budgets
               : {};
           currencySymbol = data.currencySymbol || "$";
+
+          // NEW
+          categoryBudgets =
+            data.categoryBudgets && typeof data.categoryBudgets === "object"
+              ? data.categoryBudgets
+              : {};
+          if (typeof data.autoSyncEnabled === "boolean") {
+            autoSyncEnabled = data.autoSyncEnabled;
+          }
+
           saveToLocal();
           // update currency selector
           const curSel = document.getElementById("currencySelect");
           if (curSel) curSel.value = currencySymbol;
+
+          const autoToggle = document.getElementById("autoSyncToggle");
+          if (autoToggle) autoToggle.checked = !!autoSyncEnabled;
+
           renderAll();
           showToast("Backup imported");
+
+          // NEW: autosync after import (only if connected)
+          scheduleAutoSync("import");
         } catch (err) {
           console.error("Import failed", err);
           showToast("Could not import this file", true);
         }
       };
       reader.readAsText(file);
+    }
+
+    // NEW: Category budget set
+    function setCategoryBudget() {
+      const catEl = document.getElementById("catBudgetCategory");
+      const amtEl = document.getElementById("catBudgetAmount");
+      if (!catEl || !amtEl) return;
+
+      const cat = (catEl.value || "").trim();
+      const amt = parseFloat(amtEl.value);
+
+      if (!cat) {
+        showToast("Enter a category name", true);
+        return;
+      }
+      if (!amt || Number.isNaN(amt) || amt <= 0) {
+        showToast("Budget must be > 0", true);
+        return;
+      }
+
+      if (!categoryBudgets[currentMonth]) categoryBudgets[currentMonth] = {};
+      categoryBudgets[currentMonth][cat] = amt;
+
+      saveToLocal();
+      renderAll();
+      scheduleAutoSync("set-cat-budget");
+
+      catEl.value = "";
+      amtEl.value = "";
+      showToast("Category budget saved");
     }
 
     /************************************************************
@@ -1928,6 +2484,20 @@
           currencySymbol = curSel.value || "$";
           saveToLocal();
           renderAll();
+          scheduleAutoSync("currency-change"); // NEW
+        });
+      }
+
+      // NEW: autosync toggle init
+      const autoToggle = document.getElementById("autoSyncToggle");
+      if (autoToggle) {
+        autoToggle.checked = !!autoSyncEnabled;
+        autoToggle.addEventListener("change", () => {
+          autoSyncEnabled = !!autoToggle.checked;
+          saveToLocal();
+          renderAll();
+          // If turning on while connected, sync current state once (optional)
+          if (autoSyncEnabled) scheduleAutoSync("auto-sync-enabled");
         });
       }
 
@@ -1950,6 +2520,11 @@
       document
         .getElementById("exportBtn")
         .addEventListener("click", handleExport);
+
+      // NEW
+      document
+        .getElementById("exportCsvBtn")
+        .addEventListener("click", handleExportCsv);
 
       document.getElementById("pdfBtn").addEventListener("click", () => {
         window.print();
@@ -1977,7 +2552,12 @@
         }
         saveToLocal();
         renderAll();
+        scheduleAutoSync("monthly-budget-change"); // NEW
       });
+
+      // NEW: category budget set button
+      const addCatBudgetBtn = document.getElementById("addCatBudgetBtn");
+      if (addCatBudgetBtn) addCatBudgetBtn.addEventListener("click", setCategoryBudget);
 
       document
         .getElementById("insightsYearSelect")
