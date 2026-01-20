@@ -540,7 +540,7 @@
     /* Entry form */
     .entry-form {
       display: grid;
-      grid-template-columns: 0.9fr 0.8fr 0.8fr 0.8fr 1fr 0.8fr;
+      grid-template-columns: 0.9fr 0.8fr 0.8fr 1fr 0.8fr;
       gap: 8px;
       margin-bottom: 8px;
       align-items: center;
@@ -1162,12 +1162,6 @@
             <option value="income">Income</option>
             <option value="saving">Saving</option>
           </select>
-<select id="accountInput">
-  <option value="Cash">Cash</option>
-  <option value="Bank">Bank</option>
-  <option value="Mobile banking">Mobile banking</option>
-  <option value="Card">Card</option>
-</select>
 
           <!-- Custom category with suggestions -->
           <input
@@ -1240,12 +1234,6 @@
             <!-- NEW: CSV export -->
             <button id="exportCsvBtn" class="btn-outline" type="button">
               <span>Export CSV</span>
-            </button>
-
-            <!-- NEW: Statement CSV import -->
-            <button id="importCsvBtn" class="btn-outline" type="button">
-              <span>Import statement CSV</span>
-              <input id="importCsvFileInput" type="file" accept=".csv,text/csv" style="display:none;" />
             </button>
 
             <button id="importBtn" class="btn-outline" type="button">
@@ -1338,100 +1326,6 @@
       </div>
     </section>
   </div>
-
-  
-<!-- CSV Import Modal (Step 3) -->
-<div id="csvImportModal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.72); z-index:80; padding:18px;">
-  <div style="max-width:980px; margin:0 auto; background:rgba(15,23,42,0.98); border:1px solid rgba(148,163,184,0.25); border-radius:18px; box-shadow:0 30px 80px rgba(15,23,42,0.85); overflow:hidden;">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid rgba(148,163,184,0.18);">
-      <div style="font-size:0.9rem; color:var(--text); font-weight:600;">Statement CSV Import</div>
-      <button id="csvModalCloseBtn" class="btn-ghost" type="button">Close</button>
-    </div>
-
-    <div style="padding:14px;">
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
-        <span class="chip">Step 3</span>
-        <span style="font-size:0.78rem; color:var(--muted);">Map your CSV columns, preview, then import. Rules engine will auto-suggest category/account if enabled.</span>
-      </div>
-
-      <div style="display:grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap:8px; align-items:end;">
-        <div>
-          <div class="card-sub" style="margin-bottom:4px;">Date column</div>
-          <select id="csvColDate" class="insights-select" style="width:100%;"></select>
-        </div>
-        <div>
-          <div class="card-sub" style="margin-bottom:4px;">Description column</div>
-          <select id="csvColDesc" class="insights-select" style="width:100%;"></select>
-        </div>
-        <div>
-          <div class="card-sub" style="margin-bottom:4px;">Amount column</div>
-          <select id="csvColAmount" class="insights-select" style="width:100%;"></select>
-        </div>
-        <div>
-          <div class="card-sub" style="margin-bottom:4px;">Type column (optional)</div>
-          <select id="csvColType" class="insights-select" style="width:100%;">
-            <option value="">(none)</option>
-          </select>
-        </div>
-        <div>
-          <div class="card-sub" style="margin-bottom:4px;">Account (applies to all)</div>
-          <select id="csvDefaultAccount" class="insights-select" style="width:100%;">
-            <option value="Cash">Cash</option>
-            <option value="Bank">Bank</option>
-            <option value="Mobile banking">Mobile banking</option>
-            <option value="Card">Card</option>
-          </select>
-        </div>
-        <div>
-          <div class="card-sub" style="margin-bottom:4px;">Date format</div>
-          <select id="csvDateFormat" class="insights-select" style="width:100%;">
-            <option value="auto">Auto</option>
-            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-            <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-          </select>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;">
-        <label class="toggle" style="cursor:pointer;">
-          <input id="csvNegativeIsExpense" type="checkbox" checked />
-          <span>Negative amount = Expense</span>
-        </label>
-
-        <label class="toggle" style="cursor:pointer;">
-          <input id="csvApplyRules" type="checkbox" checked />
-          <span>Apply rules engine</span>
-        </label>
-
-        <label class="toggle" style="cursor:pointer;">
-          <input id="csvSkipZero" type="checkbox" checked />
-          <span>Skip zero amounts</span>
-        </label>
-
-        <div style="flex:1;"></div>
-
-        <button id="csvPreviewBtn" class="btn-sm" type="button">Preview</button>
-        <button id="csvImportConfirmBtn" class="btn-sm" type="button" style="background:linear-gradient(135deg,#16a34a,#22c55e); box-shadow:0 10px 26px rgba(34,197,94,0.35);">Import</button>
-      </div>
-
-      <div style="margin-top:12px; border-top:1px solid rgba(148,163,184,0.14); padding-top:12px;">
-        <div class="card-sub" style="margin-bottom:8px;">Preview (first 25 rows)</div>
-        <div style="overflow:auto; max-height:340px; border:1px solid rgba(148,163,184,0.18); border-radius:14px;">
-          <table class="entries-table" style="width:100%;">
-            <thead>
-              <tr>
-                <th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Account</th><th style="text-align:right;">Amount</th>
-              </tr>
-            </thead>
-            <tbody id="csvPreviewBody"></tbody>
-          </table>
-        </div>
-        <div id="csvPreviewHint" class="insights-empty" style="display:none; margin-top:8px;">Select mappings then click Preview.</div>
-      </div>
-    </div>
-  </div>
-</div>
 
   <div id="toast" class="toast">
     <span id="toastMessage"></span>
@@ -1548,10 +1442,6 @@
         // NEW
         categoryBudgets,
         autoSyncEnabled,
-        rulesEnabled,
-        autoSyncEnabled,
-          rulesEnabled,
-          autoSyncEnabled,
         lastUpdated: Date.now(),
       };
       try {
@@ -1567,7 +1457,6 @@
         if (!raw) return;
         const data = JSON.parse(raw);
         if (Array.isArray(data.entries)) entries = data.entries;
-          ensureEntryAccounts();
         if (Array.isArray(data.recurringRules))
           recurringRules = data.recurringRules;
         if (data.budgets && typeof data.budgets === "object")
@@ -1579,10 +1468,6 @@
           categoryBudgets = data.categoryBudgets;
         if (typeof data.autoSyncEnabled === "boolean")
           autoSyncEnabled = data.autoSyncEnabled;
-          if (typeof data.rulesEnabled === "boolean") rulesEnabled = data.rulesEnabled;
-        if (typeof data.rulesEnabled === "boolean") rulesEnabled = data.rulesEnabled;
-
-        ensureEntryAccounts();
       } catch (e) {
         console.error("Failed to load from localStorage", e);
       }
@@ -1619,65 +1504,7 @@
       return (v * 100).toFixed(1) + "%";
     }
 
-    
-// ===== Account Layer (Step 1) =====
-const DEFAULT_ACCOUNT = "Cash";
-
-function ensureEntryAccounts() {
-  if (!Array.isArray(entries)) return;
-  for (const e of entries) {
-    if (!e) continue;
-    if (!e.account || typeof e.account !== "string") e.account = DEFAULT_ACCOUNT;
-  }
-
-// ===== Rules Engine (Step 2) =====
-// Purpose: auto-suggest Category + Account from Description keywords for NEW entries.
-// Existing entries are never modified.
-let rulesEnabled = true;
-
-// Simple keyword rules (edit freely). Matches are case-insensitive.
-// Fields you can set: type ("expense"|"income"|"saving"|null), category, account
-const keywordRules = [
-  // Transport
-  { name: "Uber/Bolt/Taxi",      match: /\b(uber|bolt|taxi|cab)\b/i,                 type: "expense", category: "Transport",        account: "Card" },
-  // Food & coffee
-  { name: "Coffee",             match: /\b(coffee|cafe|starbucks)\b/i,              type: "expense", category: "Food",             account: null },
-  { name: "Groceries",          match: /\b(grocery|groceries|supermarket|carrefour|naivas)\b/i, type: "expense", category: "Food",  account: null },
-  // Mobile banking / transfers
-  { name: "Mobile banking",     match: /\b(mpesa|m-pesa|mobile\s?bank|paybill|till)\b/i,     type: null,     category: null,               account: "Mobile banking" },
-  { name: "Bank transfer",      match: /\b(bank\s?transfer|eft|swift|iban)\b/i,             type: null,     category: null,               account: "Bank" },
-  // Cash
-  { name: "ATM withdrawal",     match: /\b(atm|cash\s?withdrawal|withdrawal)\b/i,            type: "expense", category: "Cash withdrawal", account: "Cash" },
-  // Utilities / bills
-  { name: "Airtime/Data",       match: /\b(airtime|data\s?bundle|bundle)\b/i,               type: "expense", category: "Bills",           account: "Mobile banking" },
-  // Income
-  { name: "Salary",             match: /\b(salary|payroll|wages)\b/i,                        type: "income",  category: "Salary",          account: "Bank" },
-  // Savings / investment
-  { name: "Investment",         match: /\b(invest|investment|stocks|shares|crypto)\b/i,      type: "saving",  category: "Investment",      account: null },
-];
-
-function applyRulesToDraft({ type, description, category, account }) {
-  const desc = (description || "").trim();
-  if (!rulesEnabled || !desc) return { category, account };
-
-  for (const r of keywordRules) {
-    if (r.type && r.type !== type) continue;
-    if (!r.match || !r.match.test(desc)) continue;
-
-    // Apply category only if user left it blank or defaulted to General
-    const catIsDefault = !category || (String(category).trim().toLowerCase() === "general");
-    const acctIsDefault = !account || (String(account).trim().toLowerCase() === String(DEFAULT_ACCOUNT).toLowerCase());
-
-    const nextCategory = (r.category && catIsDefault) ? r.category : category;
-    const nextAccount  = (r.account  && acctIsDefault) ? r.account  : account;
-
-    return { category: nextCategory, account: nextAccount };
-  }
-
-  return { category, account };
-}
-}
-/************************************************************
+    /************************************************************
      * AUTO-SYNC (additive, non-breaking)
      ************************************************************/
     let __autoSyncTimer = null;
@@ -2307,7 +2134,6 @@ function applyRulesToDraft({ type, description, category, account }) {
             ? JSON.parse(fileContentResp.body)
             : fileContentResp.result || {};
           if (Array.isArray(data.entries)) entries = data.entries;
-          ensureEntryAccounts();
           if (Array.isArray(data.recurringRules))
             recurringRules = data.recurringRules;
           if (data.budgets && typeof data.budgets === "object")
@@ -2319,8 +2145,6 @@ function applyRulesToDraft({ type, description, category, account }) {
             categoryBudgets = data.categoryBudgets;
           if (typeof data.autoSyncEnabled === "boolean")
             autoSyncEnabled = data.autoSyncEnabled;
-          if (typeof data.rulesEnabled === "boolean") rulesEnabled = data.rulesEnabled;
-        if (typeof data.rulesEnabled === "boolean") rulesEnabled = data.rulesEnabled;
 
           saveToLocal(); // keep local in sync
         } else {
@@ -2353,10 +2177,6 @@ function applyRulesToDraft({ type, description, category, account }) {
           currencySymbol,
           // NEW
           categoryBudgets,
-          autoSyncEnabled,
-        rulesEnabled,
-        autoSyncEnabled,
-          rulesEnabled,
           autoSyncEnabled,
           lastUpdated: Date.now(),
         },
@@ -2423,7 +2243,6 @@ function applyRulesToDraft({ type, description, category, account }) {
     function addEntry() {
       const dateInput = document.getElementById("dateInput");
       const typeInput = document.getElementById("typeInput");
-      const accountInput = document.getElementById("accountInput");
       const categoryInput = document.getElementById("categoryInput");
       const descriptionInput = document.getElementById("descriptionInput");
       const amountInput = document.getElementById("amountInput");
@@ -2432,18 +2251,6 @@ function applyRulesToDraft({ type, description, category, account }) {
       const type = typeInput.value;
       const category = categoryInput.value.trim() || "General";
       const description = descriptionInput.value.trim();
-      const account = (accountInput && accountInput.value) ? accountInput.value : DEFAULT_ACCOUNT;
-      
-      const ruled = applyRulesToDraft({ type, description, category, account });
-      const finalCategory = ruled.category || category || "General";
-      const finalAccount = ruled.account || account || DEFAULT_ACCOUNT;
-
-      // Reflect suggestions back to UI (user can still override)
-      try {
-        if (categoryInput && (!categoryInput.value || categoryInput.value.trim().toLowerCase() === "general")) categoryInput.value = finalCategory;
-        if (accountInput && (accountInput.value || "").trim().toLowerCase() === String(DEFAULT_ACCOUNT).toLowerCase()) accountInput.value = finalAccount;
-      } catch (e) {}
-
       const amount = parseFloat(amountInput.value);
 
       if (!date || Number.isNaN(new Date(date).getTime())) {
@@ -2468,7 +2275,7 @@ function applyRulesToDraft({ type, description, category, account }) {
           String(Date.now()) + Math.random().toString(16).slice(2),
         date,
         type,
-        category: finalCategory,
+        category,
         description,
         amount,
         monthKey,
@@ -2518,7 +2325,6 @@ function applyRulesToDraft({ type, description, category, account }) {
           // NEW
           categoryBudgets,
           autoSyncEnabled,
-          rulesEnabled,
           exportedAt: new Date().toISOString(),
         },
         null,
@@ -2585,7 +2391,6 @@ function applyRulesToDraft({ type, description, category, account }) {
             throw new Error("Invalid file format");
           }
           entries = data.entries;
-          ensureEntryAccounts();
           recurringRules = Array.isArray(data.recurringRules)
             ? data.recurringRules
             : [];
@@ -2603,7 +2408,6 @@ function applyRulesToDraft({ type, description, category, account }) {
           if (typeof data.autoSyncEnabled === "boolean") {
             autoSyncEnabled = data.autoSyncEnabled;
           }
-          if (typeof data.rulesEnabled === "boolean") { rulesEnabled = data.rulesEnabled; }
 
           saveToLocal();
           // update currency selector
@@ -2656,367 +2460,12 @@ function applyRulesToDraft({ type, description, category, account }) {
       showToast("Category budget saved");
     }
 
-    
-/************************************************************
- * CSV Import (Step 3) - Statement CSV with mapping + preview
- ************************************************************/
-let __csvRawText = "";
-let __csvRows = [];      // array of arrays
-let __csvHeaders = [];   // array of strings
-
-function openCsvModal() {
-  const modal = document.getElementById("csvImportModal");
-  if (!modal) return;
-  modal.style.display = "block";
-  const body = document.getElementById("csvPreviewBody");
-  if (body) body.innerHTML = "";
-  const hint = document.getElementById("csvPreviewHint");
-  if (hint) {
-    hint.style.display = "block";
-    hint.textContent = "Select mappings then click Preview.";
-  }
-}
-
-function closeCsvModal() {
-  const modal = document.getElementById("csvImportModal");
-  if (!modal) return;
-  modal.style.display = "none";
-}
-
-function parseCsv(text) {
-  // Minimal CSV parser supporting quotes, commas, CRLF
-  const rows = [];
-  let row = [];
-  let cur = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    const next = text[i + 1];
-
-    if (ch === '"') {
-      if (inQuotes && next === '"') {
-        cur += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
-    }
-
-    if (!inQuotes && ch === ",") {
-      row.push(cur);
-      cur = "";
-      continue;
-    }
-
-    if (!inQuotes && ch === "\n") {
-      row.push(cur);
-      cur = "";
-      row = row.map((v) => (typeof v === "string" ? v.replace(/\r$/, "") : v));
-      if (row.some((v) => String(v || "").trim() !== "")) rows.push(row);
-      row = [];
-      continue;
-    }
-
-    cur += ch;
-  }
-
-  if (cur.length || row.length) {
-    row.push(cur);
-    row = row.map((v) => (typeof v === "string" ? v.replace(/\r$/, "") : v));
-    if (row.some((v) => String(v || "").trim() !== "")) rows.push(row);
-  }
-
-  return rows;
-}
-
-function normalizeHeader(h) {
-  return String(h || "").trim();
-}
-
-function fillCsvSelectOptions(selectEl, headers, includeNone = false) {
-  if (!selectEl) return;
-  const prev = selectEl.value;
-  selectEl.innerHTML = "";
-  if (includeNone) {
-    const opt0 = document.createElement("option");
-    opt0.value = "";
-    opt0.textContent = "(none)";
-    selectEl.appendChild(opt0);
-  }
-  headers.forEach((h, idx) => {
-    const opt = document.createElement("option");
-    opt.value = String(idx);
-    opt.textContent = h || ("Column " + (idx + 1));
-    selectEl.appendChild(opt);
-  });
-  if (prev !== "" && !Number.isNaN(Number(prev)) && Number(prev) < headers.length) {
-    selectEl.value = prev;
-  }
-}
-
-function guessCsvColumn(headers, keywords) {
-  const lower = headers.map((h) => String(h || "").toLowerCase());
-  for (let i = 0; i < lower.length; i++) {
-    for (const k of keywords) {
-      if (lower[i].includes(k)) return i;
-    }
-  }
-  return -1;
-}
-
-function parseDateByFormat(value, format) {
-  const s = String(value || "").trim();
-  if (!s) return null;
-
-  if (!format || format === "auto") {
-    const d = new Date(s);
-    if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-
-    const m1 = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-    if (m1) {
-      const dd = Number(m1[1]);
-      const mm = Number(m1[2]);
-      const yy = Number(m1[3]) < 100 ? (2000 + Number(m1[3])) : Number(m1[3]);
-      const d2 = new Date(yy, mm - 1, dd);
-      if (!Number.isNaN(d2.getTime())) return d2.toISOString().slice(0, 10);
-    }
-
-    const m2 = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
-    if (m2) {
-      const yy = Number(m2[1]), mm = Number(m2[2]), dd = Number(m2[3]);
-      const d3 = new Date(yy, mm - 1, dd);
-      if (!Number.isNaN(d3.getTime())) return d3.toISOString().slice(0, 10);
-    }
-
-    return null;
-  }
-
-  if (format === "YYYY-MM-DD") {
-    const m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
-    if (!m) return null;
-    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-    if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-    return null;
-  }
-
-  if (format === "DD/MM/YYYY") {
-    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-    if (!m) return null;
-    const yy = Number(m[3]) < 100 ? (2000 + Number(m[3])) : Number(m[3]);
-    const d = new Date(yy, Number(m[2]) - 1, Number(m[1]));
-    if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-    return null;
-  }
-
-  if (format === "MM/DD/YYYY") {
-    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
-    if (!m) return null;
-    const yy = Number(m[3]) < 100 ? (2000 + Number(m[3])) : Number(m[3]);
-    const d = new Date(yy, Number(m[1]) - 1, Number(m[2]));
-    if (!Number.isNaN(d.getTime())) return d.toISOString().slice(0, 10);
-    return null;
-  }
-
-  return null;
-}
-
-function parseAmount(val) {
-  const s = String(val || "").trim();
-  if (!s) return 0;
-  const cleaned = s.replace(/[^0-9\-\.,]/g, "").replace(/,/g, "");
-  const n = parseFloat(cleaned);
-  return Number.isNaN(n) ? 0 : n;
-}
-
-function buildCsvPreview(limit = 25) {
-  const dateSel = document.getElementById("csvColDate");
-  const descSel = document.getElementById("csvColDesc");
-  const amtSel  = document.getElementById("csvColAmount");
-  const typeSel = document.getElementById("csvColType");
-  const acctSel = document.getElementById("csvDefaultAccount");
-  const fmtSel  = document.getElementById("csvDateFormat");
-  const negIsExpense = document.getElementById("csvNegativeIsExpense");
-  const applyRules = document.getElementById("csvApplyRules");
-  const skipZero = document.getElementById("csvSkipZero");
-
-  const body = document.getElementById("csvPreviewBody");
-  const hint = document.getElementById("csvPreviewHint");
-  if (!body) return;
-
-  body.innerHTML = "";
-  if (hint) hint.style.display = "none";
-
-  if (!dateSel || !descSel || !amtSel) {
-    if (hint) hint.style.display = "block";
-    return;
-  }
-
-  const dateIdx = Number(dateSel.value);
-  const descIdx = Number(descSel.value);
-  const amtIdx  = Number(amtSel.value);
-  const typeIdx = (typeSel && typeSel.value !== "") ? Number(typeSel.value) : -1;
-
-  if ([dateIdx, descIdx, amtIdx].some((v) => Number.isNaN(v))) {
-    if (hint) hint.style.display = "block";
-    return;
-  }
-
-  const defaultAccount = acctSel ? acctSel.value : DEFAULT_ACCOUNT;
-  const format = fmtSel ? fmtSel.value : "auto";
-
-  let shown = 0;
-  for (let r = 1; r < __csvRows.length; r++) {
-    if (shown >= limit) break;
-    const row = __csvRows[r] || [];
-    const isoDate = parseDateByFormat(row[dateIdx], format);
-    if (!isoDate) continue;
-
-    const amt = parseAmount(row[amtIdx]);
-    if (skipZero && skipZero.checked && Math.abs(amt) < 1e-9) continue;
-
-    let type = "expense";
-    if (typeIdx >= 0) {
-      const t = String(row[typeIdx] || "").toLowerCase();
-      if (t.includes("income") || t.includes("credit") || t.includes("cr")) type = "income";
-      else if (t.includes("saving")) type = "saving";
-      else if (t.includes("expense") || t.includes("debit") || t.includes("dr")) type = "expense";
-    } else {
-      const negExpense = !!(negIsExpense && negIsExpense.checked);
-      if (amt < 0 && negExpense) type = "expense";
-      else if (amt < 0 && !negExpense) type = "income";
-      else type = "expense";
-    }
-
-    const description = String(row[descIdx] || "").trim();
-    let category = "General";
-    let account = defaultAccount;
-
-    if (applyRules && applyRules.checked && typeof applyRulesToDraft === "function") {
-      const ruled = applyRulesToDraft({ type, description, category, account });
-      category = ruled.category || category;
-      account  = ruled.account  || account;
-    }
-
-    const absAmt = Math.abs(amt);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${isoDate}</td>
-      <td><span class="type-pill ${type}">${type === "expense" ? "Expense" : type === "income" ? "Income" : "Saving"}</span></td>
-      <td>${String(category || "").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-      <td>${String(description || "").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-      <td>${String(account || "").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</td>
-      <td style="text-align:right;">${formatCurrency(absAmt)}</td>
-    `;
-    body.appendChild(tr);
-    shown++;
-  }
-
-  if (shown === 0 && hint) {
-    hint.style.display = "block";
-    hint.textContent = "No preview rows. Check column mapping and date format.";
-  }
-}
-
-function importCsvNow() {
-  const dateSel = document.getElementById("csvColDate");
-  const descSel = document.getElementById("csvColDesc");
-  const amtSel  = document.getElementById("csvColAmount");
-  const typeSel = document.getElementById("csvColType");
-  const acctSel = document.getElementById("csvDefaultAccount");
-  const fmtSel  = document.getElementById("csvDateFormat");
-  const negIsExpense = document.getElementById("csvNegativeIsExpense");
-  const applyRules = document.getElementById("csvApplyRules");
-  const skipZero = document.getElementById("csvSkipZero");
-
-  if (!dateSel || !descSel || !amtSel) {
-    showToast("Select required column mappings", true);
-    return;
-  }
-
-  const dateIdx = Number(dateSel.value);
-  const descIdx = Number(descSel.value);
-  const amtIdx  = Number(amtSel.value);
-  const typeIdx = (typeSel && typeSel.value !== "") ? Number(typeSel.value) : -1;
-
-  if ([dateIdx, descIdx, amtIdx].some((v) => Number.isNaN(v))) {
-    showToast("Select required column mappings", true);
-    return;
-  }
-
-  const defaultAccount = acctSel ? acctSel.value : DEFAULT_ACCOUNT;
-  const format = fmtSel ? fmtSel.value : "auto";
-
-  let imported = 0;
-
-  for (let r = 1; r < __csvRows.length; r++) {
-    const row = __csvRows[r] || [];
-    const isoDate = parseDateByFormat(row[dateIdx], format);
-    if (!isoDate) continue;
-
-    const amt = parseAmount(row[amtIdx]);
-    if (skipZero && skipZero.checked && Math.abs(amt) < 1e-9) continue;
-
-    let type = "expense";
-    if (typeIdx >= 0) {
-      const t = String(row[typeIdx] || "").toLowerCase();
-      if (t.includes("income") || t.includes("credit") || t.includes("cr")) type = "income";
-      else if (t.includes("saving")) type = "saving";
-      else if (t.includes("expense") || t.includes("debit") || t.includes("dr")) type = "expense";
-    } else {
-      const negExpense = !!(negIsExpense && negIsExpense.checked);
-      if (amt < 0 && negExpense) type = "expense";
-      else if (amt < 0 && !negExpense) type = "income";
-      else type = "expense";
-    }
-
-    const description = String(row[descIdx] || "").trim();
-    let category = "General";
-    let account = defaultAccount;
-
-    if (applyRules && applyRules.checked && typeof applyRulesToDraft === "function") {
-      const ruled = applyRulesToDraft({ type, description, category, account });
-      category = ruled.category || category;
-      account  = ruled.account  || account;
-    }
-
-    const monthKey = getMonthKeyFromDate(isoDate);
-    if (!monthKey) continue;
-
-    const entry = {
-      id: (crypto.randomUUID && crypto.randomUUID()) || (String(Date.now()) + Math.random().toString(16).slice(2)),
-      date: isoDate,
-      type,
-      account,
-      category,
-      description,
-      amount: Math.abs(amt),
-      monthKey
-    };
-
-    entries.push(entry);
-    imported++;
-  }
-
-  ensureEntryAccounts(); // safety
-  saveToLocal();
-  renderAll();
-  scheduleAutoSync("csv-import");
-
-  showToast(`Imported ${imported} row${imported === 1 ? "" : "s"} from CSV`);
-  closeCsvModal();
-}
-
-/************************************************************
+    /************************************************************
      * INIT
      ************************************************************/
     function init() {
       // initial state: load from local
       loadFromLocal();
-
-      // Ensure older entries have an account field
-      ensureEntryAccounts();
 
       const now = new Date();
       currentMonth = `${now.getFullYear()}-${String(
@@ -3122,18 +2571,7 @@ function importCsvNow() {
         .getElementById("typeInput")
         .addEventListener("change", renderCategoryOptions);
 
-      
-// Rules toggle shortcut: Ctrl+Alt+R
-window.addEventListener("keydown", (ev) => {
-  try {
-    if (ev.ctrlKey && ev.altKey && (ev.key === "r" || ev.key === "R")) {
-      rulesEnabled = !rulesEnabled;
-      saveToLocal();
-      showToast(rulesEnabled ? "Rules engine enabled" : "Rules engine disabled");
-    }
-  } catch (e) {}
-});
-renderAll();
+      renderAll();
 
       // initialise Google sign-in & Drive client (robust for phone)
       setTimeout(initGoogle, 400);
